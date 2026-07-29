@@ -294,6 +294,59 @@ export function Rsvp() {
   )
 }
 
+function generateICS(data: RsvpData) {
+  const dateStr = "20260926"
+  const startTime = "160000"
+  const endTime = "234500"
+  const now = new Date().toISOString().replace(/[-:]/g, "").split(".")[0] + "Z"
+
+  const location = "Four Seasons at Terra Lago, 85-370 Terra Lago Parkway, Indio, CA 92203"
+  const summary = `Wedding of ${wedding.brideFirst} & ${wedding.groomFirst}`
+  const desc = `You are cordially invited to celebrate the wedding of ${wedding.brideName} & ${wedding.groomName}.\n\nDress Code: ${wedding.dressCode}\nAccess Code: ${data.code}\n\nCeremony: 4:00 PM\nCocktail Hour: 5:00 PM\nReception: 5:45 PM\nFirst Dance: 6:30 PM\nDinner: 7:00 PM\nDancing & Celebration: 7:30 PM`
+
+  return [
+    "BEGIN:VCALENDAR",
+    "VERSION:2.0",
+    "PRODID:-//Lynch Wedding//RSVP//EN",
+    "BEGIN:VEVENT",
+    `DTSTART:${dateStr}T${startTime}`,
+    `DTEND:${dateStr}T${endTime}`,
+    `DTSTAMP:${now}`,
+    `UID:${data.code}@lynchweddingsite`,
+    `SUMMARY:${summary}`,
+    `DESCRIPTION:${desc.replace(/\n/g, "\\n")}`,
+    `LOCATION:${location}`,
+    "STATUS:CONFIRMED",
+    "END:VEVENT",
+    "END:VCALENDAR",
+  ].join("\r\n")
+}
+
+function addToWallet(data: RsvpData) {
+  const ics = generateICS(data)
+  const blob = new Blob([ics], { type: "text/calendar;charset=utf-8" })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement("a")
+  a.href = url
+  a.download = `wedding-${wedding.dateShort.replace(/\s/g, "")}.ics`
+  document.body.appendChild(a)
+  a.click()
+  document.body.removeChild(a)
+  URL.revokeObjectURL(url)
+}
+
+function shareToMobile(data: RsvpData) {
+  if (navigator.share) {
+    navigator.share({
+      title: `Wedding of ${wedding.brideFirst} & ${wedding.groomFirst}`,
+      text: `Join us to celebrate ${wedding.brideFirst} & ${wedding.groomFirst} on ${wedding.date} at ${wedding.ceremonyVenue}. Access Code: ${data.code}`,
+      url: window.location.href,
+    }).catch(() => {})
+  } else {
+    addToWallet(data)
+  }
+}
+
 function Ticket({ data, onReset }: { data: RsvpData; onReset: () => void }) {
   const guestCount = Number(data.guests)
   const extra = guestCount - 1
@@ -411,6 +464,14 @@ function Ticket({ data, onReset }: { data: RsvpData; onReset: () => void }) {
           >
             <Printer className="size-4" aria-hidden="true" />
             Download / Print Ticket
+          </Button>
+          <Button
+            onClick={() => shareToMobile(data)}
+            size="lg"
+            className="h-12 rounded-none bg-primary/90 px-8 font-sans text-sm uppercase tracking-[0.2em] text-primary-foreground hover:bg-primary/80 sm:hidden"
+          >
+            <TicketIcon className="size-4" aria-hidden="true" />
+            Add to Wallet
           </Button>
           <Button
             variant="outline"
