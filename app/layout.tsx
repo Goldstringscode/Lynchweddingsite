@@ -41,7 +41,7 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
   colorScheme: 'light',
-  themeColor: '#fafafa',
+  themeColor: '#0a0a0f',
 }
 
 export default function RootLayout({
@@ -52,28 +52,37 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`light bg-background ${playfair.variable} ${montserrat.variable}`}
-      style={{ backgroundColor: '#fafafa' }}
+      className={`${playfair.variable} ${montserrat.variable}`}
+      // Solid background color on <html> bypasses CSS variable resolution delay,
+      // preventing the gray-flash-of-unstyled-content (FOUC)
+      style={{ backgroundColor: '#0a0a0f' }}
+      suppressHydrationWarning
     >
-      {/* Critical inline CSS — loads before external CSS imports to prevent gray flash */}
+      {/* Inline CSS to paint the background instantly — before external CSS loads */}
       <style
         dangerouslySetInnerHTML={{
           __html: [
-            'html, body, [data-nextjs-root], #__next {',
-            '  background-color: #fafafa !important;',
+            'html, body {',
+            '  background-color: #0a0a0f !important;',
+            '  margin: 0;',
+            '  padding: 0;',
             '}',
             ':root {',
+            '  --background: oklch(0.145 0 0);',
+            '  --foreground: oklch(0.985 0 0);',
+            '}',
+            // Light mode override — only applied when explicitly requested
+            '.light {',
             '  --background: oklch(0.98 0 0);',
             '  --foreground: oklch(0.15 0 0);',
             '}',
-            '.dark, :root:not(.light) {',
-            '  --background: oklch(0.145 0 0);',
-            '  --foreground: oklch(0.985 0 0);',
+            '.light, .light body {',
+            '  background-color: #fafafa !important;',
             '}',
           ].join('\n'),
         }}
       />
-      <body className="font-sans antialiased" style={{ backgroundColor: '#fafafa' }}>
+      <body className="font-sans antialiased" style={{ backgroundColor: '#0a0a0f' }}>
         {children}
         {process.env.NODE_ENV === 'production' && <Analytics />}
       </body>
