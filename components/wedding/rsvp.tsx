@@ -308,6 +308,8 @@ function generateICS(data: RsvpData) {
     "BEGIN:VCALENDAR",
     "VERSION:2.0",
     "PRODID:-//Lynch Wedding//RSVP//EN",
+    "CALSCALE:GREGORIAN",
+    "METHOD:PUBLISH",
     "BEGIN:VEVENT",
     `DTSTART:${dateStr}T${startTime}`,
     `DTEND:${dateStr}T${endTime}`,
@@ -317,22 +319,58 @@ function generateICS(data: RsvpData) {
     `DESCRIPTION:${desc.replace(/\n/g, "\\n")}`,
     `LOCATION:${location}`,
     "STATUS:CONFIRMED",
+    "BEGIN:VALARM",
+    "TRIGGER:-P1DT9H",
+    "ACTION:DISPLAY",
+    `DESCRIPTION:Reminder: ${summary}`,
+    "END:VALARM",
     "END:VEVENT",
     "END:VCALENDAR",
   ].join("\r\n")
 }
 
+function getPlatform() {
+  const ua = navigator.userAgent
+  if (/iPad|iPhone|iPod/.test(ua)) return "ios"
+  if (/Android/.test(ua)) return "android"
+  return "other"
+}
+
 function addToWallet(data: RsvpData) {
   const ics = generateICS(data)
+  const platform = getPlatform()
   const blob = new Blob([ics], { type: "text/calendar;charset=utf-8" })
   const url = URL.createObjectURL(blob)
-  const a = document.createElement("a")
-  a.href = url
-  a.download = `wedding-${wedding.dateShort.replace(/\s/g, "")}.ics`
-  document.body.appendChild(a)
-  a.click()
-  document.body.removeChild(a)
-  URL.revokeObjectURL(url)
+  const filename = `wedding-${wedding.dateShort.replace(/\s/g, "")}.ics`
+
+  if (platform === "ios") {
+    // iOS: Open the ICS via data URI — Safari offers "Open in Calendar"
+    const reader = new FileReader()
+    reader.onload = () => {
+      const dataUri = reader.result as string
+      const link = document.createElement("a")
+      link.href = dataUri.replace("application/octet-stream", "text/calendar")
+      link.download = filename
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+      // Fallback to window.open if click doesn't trigger
+      setTimeout(() => {
+        window.open(dataUri.replace("application/octet-stream", "text/calendar"), "_blank")
+      }, 500)
+    }
+    reader.readAsDataURL(blob)
+  } else {
+    // Android & others: standard download — opens Google Calendar or calendar app
+    const a = document.createElement("a")
+    a.href = url
+    a.download = filename
+    a.setAttribute("type", "text/calendar")
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    setTimeout(() => URL.revokeObjectURL(url), 1000)
+  }
 }
 
 function shareToMobile(data: RsvpData) {
@@ -341,7 +379,7 @@ function shareToMobile(data: RsvpData) {
       title: `Wedding of ${wedding.brideFirst} & ${wedding.groomFirst}`,
       text: `Join us to celebrate ${wedding.brideFirst} & ${wedding.groomFirst} on ${wedding.date} at ${wedding.ceremonyVenue}. Access Code: ${data.code}`,
       url: window.location.href,
-    }).catch(() => {})
+    }).catch(() => addToWallet(data))
   } else {
     addToWallet(data)
   }
