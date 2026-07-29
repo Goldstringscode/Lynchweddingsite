@@ -25,6 +25,7 @@ export interface Guest {
   partySize: number
   dietary: string
   meal: MealChoice
+  guestMeal: MealChoice | null
   status: RsvpStatus
   submittedAt: string
 }

@@ -47,6 +47,10 @@ export function CateringDashboard() {
           responded++
           const meal = g.meal_choice || "Beef"
           if (counts[meal] !== undefined) counts[meal]++
+          // Count second guest's meal too
+          if (g.guest_meal && counts[g.guest_meal] !== undefined) {
+            counts[g.guest_meal]++
+          }
         }
       })
       setMealCounts(counts)

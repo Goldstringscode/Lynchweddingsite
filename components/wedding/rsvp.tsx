@@ -23,6 +23,7 @@ type RsvpData = {
   email: string
   guests: string
   meal: MealChoice
+  guestMeal: MealChoice | null
   dietary: string
   attendance: Attendance
   code: string
@@ -40,6 +41,7 @@ export function Rsvp() {
   const [email, setEmail] = useState("")
   const [guests, setGuests] = useState("1")
   const [meal, setMeal] = useState<MealChoice>("Beef")
+  const [guestMeal, setGuestMeal] = useState<MealChoice>("Beef")
   const [dietary, setDietary] = useState("")
   const [attendance, setAttendance] = useState<Attendance>("accept")
   const [submitted, setSubmitted] = useState<RsvpData | null>(null)
@@ -51,16 +53,16 @@ export function Rsvp() {
       const res = await fetch("/api/rsvp", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, phone: "", guest_count: parseInt(guests), meal_choice: meal, is_attending: attendance === "accept" }),
+        body: JSON.stringify({ name, email, phone: "", guest_count: parseInt(guests), meal_choice: meal, guest_meal: guests === "2" ? guestMeal : null, is_attending: attendance === "accept" }),
       })
       if (res.ok) {
         const data = await res.json()
-        setSubmitted({ name, email, guests, meal, dietary, attendance, code: data.access_code || accessCode })
+        setSubmitted({ name, email, guests, meal, guestMeal: guests === "2" ? guestMeal : null, dietary, attendance, code: data.access_code || accessCode })
       } else {
-        setSubmitted({ name, email, guests, meal, dietary, attendance, code: accessCode })
+        setSubmitted({ name, email, guests, meal, guestMeal: guests === "2" ? guestMeal : null, dietary, attendance, code: accessCode })
       }
     } catch {
-      setSubmitted({ name, email, guests, meal, dietary, attendance, code: accessCode })
+      setSubmitted({ name, email, guests, meal, guestMeal: guests === "2" ? guestMeal : null, dietary, attendance, code: accessCode })
     }
     setTimeout(() => {
       document
@@ -75,6 +77,7 @@ export function Rsvp() {
     setEmail("")
     setGuests("1")
     setMeal("Beef")
+    setGuestMeal("Beef")
     setDietary("")
     setAttendance("accept")
   }
@@ -171,7 +174,7 @@ export function Rsvp() {
 
               <div className="space-y-3">
                 <Label className="uppercase tracking-wider text-xs">
-                  Cuisine Choice
+                  Your Cuisine Selection
                 </Label>
                 <div className="grid grid-cols-3 gap-2 sm:grid-cols-5">
                   {MEAL_OPTIONS.map((option) => (
@@ -190,6 +193,30 @@ export function Rsvp() {
                   ))}
                 </div>
               </div>
+
+              {guests === "2" && (
+                <div className="space-y-3">
+                  <Label className="uppercase tracking-wider text-xs">
+                    Your Guest's Cuisine Selection
+                  </Label>
+                  <div className="grid grid-cols-3 gap-2 sm:grid-cols-5">
+                    {MEAL_OPTIONS.map((option) => (
+                      <button
+                        key={option}
+                        type="button"
+                        onClick={() => setGuestMeal(option)}
+                        className={`px-3 py-2 text-sm font-medium border transition-colors ${
+                          guestMeal === option
+                            ? "border-primary bg-primary text-primary-foreground"
+                            : "border-input bg-transparent text-foreground hover:border-primary/50"
+                        }`}
+                      >
+                        {option}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               <div className="space-y-3">
                 <Label className="uppercase tracking-wider text-xs">

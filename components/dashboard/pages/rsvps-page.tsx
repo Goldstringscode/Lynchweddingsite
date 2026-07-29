@@ -26,7 +26,17 @@ const PAGE_SIZE = 8
 
 function toGuest(g: any): Guest {
   const status = g.check_in ? "Checked-In" : g.is_attending ? "Accepted" : "Declined"
-  return { id: g.id, name: g.name, email: g.email, partySize: g.guest_count, dietary: "", meal: g.meal_choice || "Beef", status, submittedAt: g.created_at?.slice(0, 10) || "" }
+  return {
+    id: g.id,
+    name: g.name,
+    email: g.email,
+    partySize: g.guest_count,
+    dietary: "",
+    meal: g.meal_choice || "Beef",
+    guestMeal: g.guest_meal || null,
+    status,
+    submittedAt: g.created_at?.slice(0, 10) || "",
+  }
 }
 
 export function RsvpsPage() {
@@ -127,6 +137,11 @@ export function RsvpsPage() {
                     </TableCell>
                     <TableCell>
                       <MealBadge meal={g.meal} />
+                      {g.partySize > 1 && g.guestMeal && (
+                        <span className="ml-2 text-xs text-muted-foreground">
+                          Guest: <MealBadge meal={g.guestMeal} />
+                        </span>
+                      )}
                     </TableCell>
                     <TableCell className="max-w-40 truncate text-muted-foreground">
                       {g.dietary}

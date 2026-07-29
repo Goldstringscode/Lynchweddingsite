@@ -28,7 +28,7 @@ function initials(name: string) {
 
 function toGuest(g: any): Guest {
   const status = g.check_in ? "Checked-In" : g.is_attending ? "Accepted" : "Declined"
-  return { id: g.id, name: g.name, email: g.email, partySize: g.guest_count, dietary: "", meal: g.meal_choice || "Beef", status, submittedAt: g.created_at?.slice(0, 10) || "" }
+  return { id: g.id, name: g.name, email: g.email, partySize: g.guest_count, dietary: "", meal: g.meal_choice || "Beef", guestMeal: g.guest_meal || null, status, submittedAt: g.created_at?.slice(0, 10) || "" }
 }
 function toVendor(v: any): Vendor {
   return { id: v.id, name: v.name, category: v.category as any, contact: v.contact || v.email || "", status: v.status === "confirmed" ? "Confirmed" : "Pending", cost: v.fee || 0 }
