@@ -1,5 +1,5 @@
 import type { LucideIcon } from "lucide-react"
-import { Church, Martini, Utensils, Music, Sparkles } from "lucide-react"
+import { Church, Martini, PartyPopper, Music, Utensils, Sparkles } from "lucide-react"
 
 export const wedding = {
   brideFirst: "Nikkita",
@@ -32,51 +32,61 @@ export type TimelineEvent = {
 
 export const itinerary: TimelineEvent[] = [
   {
-    time: "4:30 PM",
+    time: "4:00 PM",
     title: "The Ceremony",
     description: "Join us as we exchange vows in the garden chapel.",
     icon: Church,
-    duration: "4:30 – 5:15 PM",
+    duration: "4:00 – 4:45 PM",
     location: "Four Seasons at Terra Lago, Indio",
     details:
-      "Please arrive by 4:15 PM to be seated. The ceremony will be held outdoors in the chapel garden, followed by a receiving line with the newlyweds. Unplugged ceremony, please.",
+      "Please arrive by 3:45 PM to be seated. The ceremony will be held outdoors in the chapel garden, followed by a receiving line with the newlyweds. Unplugged ceremony, please.",
   },
   {
-    time: "5:30 PM",
+    time: "5:00 PM",
     title: "Cocktail Hour",
     description: "Signature drinks and hors d'oeuvres on the terrace.",
     icon: Martini,
-    duration: "5:30 – 6:45 PM",
+    duration: "5:00 – 5:45 PM",
     location: "Four Seasons at Terra Lago, Indio",
     details:
       "Enjoy handcrafted signature cocktails, a champagne tower, and passed hors d'oeuvres while a live jazz trio plays on the terrace overlooking the river.",
   },
   {
-    time: "7:00 PM",
-    title: "Reception & Dinner",
-    description: "A seated dinner beneath the magnolias.",
-    icon: Utensils,
-    duration: "7:00 – 8:30 PM",
+    time: "5:45 PM",
+    title: "Reception",
+    description: "Welcome and mingling as the evening gets underway.",
+    icon: PartyPopper,
+    duration: "5:45 – 6:30 PM",
     location: "Four Seasons at Terra Lago, Indio",
     details:
-      "Find your seat on the escort card display and join us for a plated three-course dinner, heartfelt toasts, and the cutting of the cake beneath the magnolias.",
+      "Guests are invited to find their seats as the reception begins. The evening kicks off with welcoming remarks and the bridal party grand entrance.",
   },
   {
-    time: "8:30 PM",
+    time: "6:30 PM",
     title: "First Dance",
     description: "Our first dance as husband and wife.",
     icon: Music,
-    duration: "8:30 – 8:45 PM",
+    duration: "6:30 – 6:45 PM",
     location: "Four Seasons at Terra Lago, Indio",
     details:
       "Gather around the dance floor as we share our first dance as a married couple, followed by the parent dances.",
   },
   {
-    time: "9:00 PM",
+    time: "7:00 PM",
+    title: "Dinner",
+    description: "A seated dinner beneath the magnolias.",
+    icon: Utensils,
+    duration: "7:00 – 7:30 PM",
+    location: "Four Seasons at Terra Lago, Indio",
+    details:
+      "Join us for a plated three-course dinner, heartfelt toasts, and the cutting of the cake beneath the magnolias.",
+  },
+  {
+    time: "7:30 PM",
     title: "Dancing & Celebration",
     description: "Let's dance the night away under the stars.",
     icon: Sparkles,
-    duration: "9:00 PM – Midnight",
+    duration: "7:30 PM – Midnight",
     location: "Four Seasons at Terra Lago, Indio",
     details:
       "The party continues with a live band and DJ, a late-night dessert bar, and a sparkler send-off at midnight to close the celebration.",
