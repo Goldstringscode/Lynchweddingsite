@@ -16,9 +16,9 @@ const montserrat = Montserrat({
 })
 
 export const metadata: Metadata = {
-  title: 'Amelia & James — Wedding',
+  title: 'Nikkita & Justin — Wedding',
   description:
-    'Join us as we celebrate the wedding of Amelia & James. View the details, itinerary, and RSVP to our special day.',
+    'Join us as we celebrate the wedding of Nikkita & Justin. View the details, itinerary, and RSVP to our special day.',
   generator: 'v0.app',
   icons: {
     icon: [
@@ -53,8 +53,9 @@ export default function RootLayout({
     <html
       lang="en"
       className={`light bg-background ${playfair.variable} ${montserrat.variable}`}
+      style={{ backgroundColor: '#fafafa' }}
     >
-      <body className="font-sans antialiased">
+      <body className="font-sans antialiased" style={{ backgroundColor: '#fafafa' }}>
         {children}
         {process.env.NODE_ENV === 'production' && <Analytics />}
       </body>

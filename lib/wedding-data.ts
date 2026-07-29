@@ -2,21 +2,21 @@ import type { LucideIcon } from "lucide-react"
 import { Church, Martini, Utensils, Music, Sparkles } from "lucide-react"
 
 export const wedding = {
-  brideFirst: "Amelia",
-  groomFirst: "James",
-  brideName: "Amelia Rose",
-  groomName: "James Whitmore",
-  monogram: "A & J",
-  date: "Saturday, September 20, 2026",
-  dateShort: "20 . 09 . 2026",
-  time: "Half past four in the afternoon",
-  ceremonyVenue: "St. Augustine's Chapel",
-  ceremonyAddress: "142 Ivy Lane, Charleston, SC",
-  receptionVenue: "The Magnolia Estate",
-  receptionAddress: "8 Riverside Terrace, Charleston, SC",
-  dressCode: "Black Tie Optional",
+  brideFirst: "Nikkita",
+  groomFirst: "Justin",
+  brideName: "Nikkita Rodgers",
+  groomName: "Justin Lynch",
+  monogram: "N & J",
+  date: "Saturday, September 26, 2026",
+  dateShort: "26 . 09 . 2026",
+  time: "Four O'Clock in the Afternoon",
+  ceremonyVenue: "Four Seasons at Terra Lago",
+  ceremonyAddress: "85-370 Terra Lago Parkway, Indio, CA 92203",
+  receptionVenue: "Four Seasons at Terra Lago",
+  receptionAddress: "85-370 Terra Lago Parkway, Indio, CA 92203",
+  dressCode: "Black Tie",
   registryUrl: "https://www.honeyfund.com",
-  hashtag: "#AmeliaAndJames2026",
+  hashtag: "#NikkitaAndJustin2026",
 }
 
 export type TimelineEvent = {
@@ -37,7 +37,7 @@ export const itinerary: TimelineEvent[] = [
     description: "Join us as we exchange vows in the garden chapel.",
     icon: Church,
     duration: "4:30 – 5:15 PM",
-    location: "St. Augustine's Chapel Garden",
+    location: "Four Seasons at Terra Lago, Indio",
     details:
       "Please arrive by 4:15 PM to be seated. The ceremony will be held outdoors in the chapel garden, followed by a receiving line with the newlyweds. Unplugged ceremony, please.",
   },
@@ -47,7 +47,7 @@ export const itinerary: TimelineEvent[] = [
     description: "Signature drinks and hors d'oeuvres on the terrace.",
     icon: Martini,
     duration: "5:30 – 6:45 PM",
-    location: "The Magnolia Estate Terrace",
+    location: "Four Seasons at Terra Lago, Indio",
     details:
       "Enjoy handcrafted signature cocktails, a champagne tower, and passed hors d'oeuvres while a live jazz trio plays on the terrace overlooking the river.",
   },
@@ -57,7 +57,7 @@ export const itinerary: TimelineEvent[] = [
     description: "A seated dinner beneath the magnolias.",
     icon: Utensils,
     duration: "7:00 – 8:30 PM",
-    location: "The Magnolia Estate Ballroom",
+    location: "Four Seasons at Terra Lago, Indio",
     details:
       "Find your seat on the escort card display and join us for a plated three-course dinner, heartfelt toasts, and the cutting of the cake beneath the magnolias.",
   },
@@ -67,7 +67,7 @@ export const itinerary: TimelineEvent[] = [
     description: "Our first dance as husband and wife.",
     icon: Music,
     duration: "8:30 – 8:45 PM",
-    location: "The Ballroom Dance Floor",
+    location: "Four Seasons at Terra Lago, Indio",
     details:
       "Gather around the dance floor as we share our first dance as a married couple, followed by the parent dances.",
   },
@@ -77,7 +77,7 @@ export const itinerary: TimelineEvent[] = [
     description: "Let's dance the night away under the stars.",
     icon: Sparkles,
     duration: "9:00 PM – Midnight",
-    location: "The Garden Pavilion",
+    location: "Four Seasons at Terra Lago, Indio",
     details:
       "The party continues with a live band and DJ, a late-night dessert bar, and a sparkler send-off at midnight to close the celebration.",
   },

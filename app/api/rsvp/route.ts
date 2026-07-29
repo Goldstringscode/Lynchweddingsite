@@ -13,7 +13,7 @@ export async function GET() {
 
 export async function POST(request: Request) {
   const body = await request.json()
-  const { name, email, phone, guest_count } = body
+  const { name, email, phone, guest_count, meal_choice } = body
 
   if (!name || !email) {
     return NextResponse.json({ error: 'Name and email are required' }, { status: 400 })
@@ -23,7 +23,7 @@ export async function POST(request: Request) {
 
   const { data, error } = await supabaseAdmin
     .from('guests')
-    .insert([{ name, email, phone: phone || null, guest_count: guest_count || 1, access_code: accessCode, is_attending: true }])
+    .insert([{ name, email, phone: phone || null, guest_count: guest_count || 1, meal_choice: meal_choice || null, access_code: accessCode, is_attending: true }])
     .select()
     .single()
 

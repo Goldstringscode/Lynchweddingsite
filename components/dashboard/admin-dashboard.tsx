@@ -8,6 +8,8 @@ import { RsvpsPage } from "./pages/rsvps-page"
 import { VendorsPage } from "./pages/vendors-page"
 import { InvoicesPage } from "./pages/invoices-page"
 import { SettingsPage } from "./pages/settings-page"
+import { CateringDashboard } from "./catering-dashboard"
+import { EmailsPage } from "./emails-page"
 import type { PageKey } from "./nav"
 
 const pageMeta: Record<PageKey, { title: string; subtitle: string }> = {
@@ -19,6 +21,10 @@ const pageMeta: Record<PageKey, { title: string; subtitle: string }> = {
     title: "RSVPs & Guests",
     subtitle: "Track responses and manage the guest list.",
   },
+  menu: {
+    title: "Menu & Catering",
+    subtitle: "Track meal selections and manage the menu.",
+  },
   vendors: {
     title: "Vendors",
     subtitle: "Coordinate every partner for the big day.",
@@ -26,6 +32,10 @@ const pageMeta: Record<PageKey, { title: string; subtitle: string }> = {
   invoices: {
     title: "Invoices",
     subtitle: "Keep payments organized and on time.",
+  },
+  emails: {
+    title: "Email Templates",
+    subtitle: "Craft beautiful emails for guests and vendors.",
   },
   settings: {
     title: "Settings",
@@ -75,8 +85,10 @@ export function AdminDashboard() {
           >
             {page === "dashboard" && <DashboardPage />}
             {page === "rsvps" && <RsvpsPage />}
+            {page === "menu" && <CateringDashboard />}
             {page === "vendors" && <VendorsPage />}
             {page === "invoices" && <InvoicesPage />}
+            {page === "emails" && <EmailsPage />}
             {page === "settings" && <SettingsPage />}
           </div>
         </main>

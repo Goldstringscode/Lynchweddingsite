@@ -10,7 +10,7 @@ export function Hero() {
       {/* Background photo */}
       <img
         src="/images/hero-couple.png"
-        alt={`${wedding.brideFirst} and ${wedding.groomFirst} embracing at golden hour`}
+        alt={`${wedding.brideFirst} and ${wedding.groomFirst} — wedding photo`}
         className="absolute inset-0 size-full object-cover"
       />
       <div className="absolute inset-0 bg-black/45" />
@@ -57,7 +57,7 @@ export function Hero() {
           transition={{ duration: 1, delay: 0.55 }}
           className="mt-3 font-sans text-sm tracking-wide text-white/80"
         >
-          Charleston, South Carolina
+          Indio, California
         </motion.p>
       </div>
 

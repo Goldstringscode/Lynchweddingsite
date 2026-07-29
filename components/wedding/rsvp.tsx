@@ -14,10 +14,15 @@ import { Divider, Reveal } from "./decor"
 
 type Attendance = "accept" | "decline"
 
+type MealChoice = "Beef" | "Chicken" | "Fish" | "Pork" | "Vegan"
+
+const MEAL_OPTIONS: MealChoice[] = ["Beef", "Chicken", "Fish", "Pork", "Vegan"]
+
 type RsvpData = {
   name: string
   email: string
   guests: string
+  meal: MealChoice
   dietary: string
   attendance: Attendance
   code: string
@@ -34,6 +39,7 @@ export function Rsvp() {
   const [name, setName] = useState("")
   const [email, setEmail] = useState("")
   const [guests, setGuests] = useState("1")
+  const [meal, setMeal] = useState<MealChoice>("Beef")
   const [dietary, setDietary] = useState("")
   const [attendance, setAttendance] = useState<Attendance>("accept")
   const [submitted, setSubmitted] = useState<RsvpData | null>(null)
@@ -45,16 +51,16 @@ export function Rsvp() {
       const res = await fetch("/api/rsvp", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, phone: "", guest_count: parseInt(guests), is_attending: attendance === "accept" }),
+        body: JSON.stringify({ name, email, phone: "", guest_count: parseInt(guests), meal_choice: meal, is_attending: attendance === "accept" }),
       })
       if (res.ok) {
         const data = await res.json()
-        setSubmitted({ name, email, guests, dietary, attendance, code: data.access_code || accessCode })
+        setSubmitted({ name, email, guests, meal, dietary, attendance, code: data.access_code || accessCode })
       } else {
-        setSubmitted({ name, email, guests, dietary, attendance, code: accessCode })
+        setSubmitted({ name, email, guests, meal, dietary, attendance, code: accessCode })
       }
     } catch {
-      setSubmitted({ name, email, guests, dietary, attendance, code: accessCode })
+      setSubmitted({ name, email, guests, meal, dietary, attendance, code: accessCode })
     }
     setTimeout(() => {
       document
@@ -68,6 +74,7 @@ export function Rsvp() {
     setName("")
     setEmail("")
     setGuests("1")
+    setMeal("Beef")
     setDietary("")
     setAttendance("accept")
   }
@@ -108,7 +115,7 @@ export function Rsvp() {
                   required
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  placeholder="Amelia Rose"
+                  placeholder="Nikkita Rodgers"
                   className="rounded-none border-input focus-visible:ring-primary"
                 />
               </div>
@@ -138,7 +145,7 @@ export function Rsvp() {
                   onChange={(e) => setGuests(e.target.value)}
                   className="flex h-10 w-full rounded-none border border-input bg-transparent px-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-primary"
                 >
-                  {["1", "2", "3", "4", "5"].map((n) => (
+                  {["1", "2"].map((n) => (
                     <option key={n} value={n}>
                       {n} {Number(n) === 1 ? "Guest" : "Guests"}
                     </option>
@@ -160,6 +167,28 @@ export function Rsvp() {
                   placeholder="Let us know of any allergies or preferences."
                   className="min-h-24 rounded-none border-input focus-visible:ring-primary"
                 />
+              </div>
+
+              <div className="space-y-3">
+                <Label className="uppercase tracking-wider text-xs">
+                  Cuisine Choice
+                </Label>
+                <div className="grid grid-cols-3 gap-2 sm:grid-cols-5">
+                  {MEAL_OPTIONS.map((option) => (
+                    <button
+                      key={option}
+                      type="button"
+                      onClick={() => setMeal(option)}
+                      className={`px-3 py-2 text-sm font-medium border transition-colors ${
+                        meal === option
+                          ? "border-primary bg-primary text-primary-foreground"
+                          : "border-input bg-transparent text-foreground hover:border-primary/50"
+                      }`}
+                    >
+                      {option}
+                    </button>
+                  ))}
+                </div>
               </div>
 
               <div className="space-y-3">
@@ -292,7 +321,7 @@ function Ticket({ data, onReset }: { data: RsvpData; onReset: () => void }) {
                     Time
                   </p>
                   <p className="mt-1 font-serif text-base text-foreground">
-                    4:30 PM
+                    4:00 PM
                   </p>
                 </div>
               </div>

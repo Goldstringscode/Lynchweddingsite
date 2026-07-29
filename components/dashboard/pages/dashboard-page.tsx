@@ -28,7 +28,7 @@ function initials(name: string) {
 
 function toGuest(g: any): Guest {
   const status = g.check_in ? "Checked-In" : g.is_attending ? "Accepted" : "Declined"
-  return { id: g.id, name: g.name, email: g.email, partySize: g.guest_count, dietary: "", meal: "Beef", status, submittedAt: g.created_at?.slice(0, 10) || "" }
+  return { id: g.id, name: g.name, email: g.email, partySize: g.guest_count, dietary: "", meal: g.meal_choice || "Beef", status, submittedAt: g.created_at?.slice(0, 10) || "" }
 }
 function toVendor(v: any): Vendor {
   return { id: v.id, name: v.name, category: v.category as any, contact: v.contact || v.email || "", status: v.status === "confirmed" ? "Confirmed" : "Pending", cost: v.fee || 0 }
@@ -55,10 +55,13 @@ export function DashboardPage() {
       fetch("/api/vendors").then(r => r.json()),
       fetch("/api/invoices").then(r => r.json()),
     ]).then(([g, v, i]) => {
-      setGuests(g.map(toGuest))
-      setVendors(v.map(toVendor))
-      setInvoices(i.map(toInvoice))
-      const exts = v.flatMap((v: any) => (v.extensions || []).map((e: any) => ({ ...e, vendor: v.name })))
+      const guestsArr = Array.isArray(g) ? g : []
+      const vendorsArr = Array.isArray(v) ? v : []
+      const invoicesArr = Array.isArray(i) ? i : []
+      setGuests(guestsArr.map(toGuest))
+      setVendors(vendorsArr.map(toVendor))
+      setInvoices(invoicesArr.map(toInvoice))
+      const exts = vendorsArr.flatMap((v: any) => (v.extensions || []).map((e: any) => ({ ...e, vendor: v.name })))
       setDeadlines(exts.length ? exts.map(toDeadline) : [])
     })
   }, [])
