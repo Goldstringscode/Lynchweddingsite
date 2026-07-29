@@ -99,7 +99,7 @@ export function Sidebar({
         <div className="p-4">
           <div className="rounded-xl border border-sidebar-border bg-sidebar-accent/50 p-4">
             <p className="font-serif text-sm text-sidebar-foreground">
-              Whitfield &amp; Delacroix
+              Nikkita &amp; Justin
             </p>
             <p className="mt-0.5 text-xs text-sidebar-foreground/50">
               September 14, 2026
