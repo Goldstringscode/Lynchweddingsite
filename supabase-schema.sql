@@ -311,3 +311,23 @@ INSERT INTO wedding_checklist (category, task, description, suggested_month, sor
 ('Rehearsal Dinner', 'Finalize rehearsal dinner menu', 'Choose menu and beverages', 2, 2),
 ('Rehearsal Dinner', 'Send rehearsal dinner invitations', 'Invite wedding party and close family', 1, 3),
 ('Rehearsal Dinner', 'Plan rehearsal dinner speeches', 'Prepare toasts for the rehearsal dinner', 0, 4);
+
+-- 7. Menu Items (editable wedding menu)
+CREATE TABLE menu_items (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  category TEXT NOT NULL,
+  name TEXT NOT NULL,
+  description TEXT DEFAULT '',
+  price DECIMAL(10,2),
+  sort_order INTEGER NOT NULL DEFAULT 0,
+  is_available BOOLEAN NOT NULL DEFAULT true,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+ALTER TABLE menu_items ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Service role can do everything on menu_items"
+  ON menu_items FOR ALL
+  TO authenticated
+  USING (true)
+  WITH CHECK (true);
