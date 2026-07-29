@@ -19,3 +19,5 @@ node_modules
 .vercel
 .env*
 supabase/.temp/
+scout-fine-dining-data.js
+seed-fine-dining-items.js
