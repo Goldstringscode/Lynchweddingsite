@@ -1,7 +1,7 @@
 const { createClient } = require("@supabase/supabase-js")
 const supabase = createClient(
-  "https://asnkchxmqanvdljzgshv.supabase.co",
-  "sb_secret_tM5ALPnz-OOn2ukcRQaWIQ_cH80GyHm"
+  process.env.SUPABASE_URL || "https://asnkchxmqanvdljzgshv.supabase.co",
+  process.env.SUPABASE_SERVICE_KEY || "sb_secret_tM5ALPnz-OOn2ukcRQaWIQ_cH80GyHm"
 )
 
 // ====================================================================
@@ -99,7 +99,7 @@ async function run() {
     totalInserted += inserted
   }
 
-  // Update sort_order to match the new ordering
+  // Update sort_order
   const sectionOrder = { "hors-doeuvres": 1, appetizers: 2, proteins: 3, sides: 4, desserts: 5 }
   const { data: existing } = await supabase.from("menu_items").select("id,section")
   for (const item of existing || []) {
@@ -108,7 +108,6 @@ async function run() {
   }
   console.log("Updated sort_order for all", existing?.length, "items")
 
-  // Count by section
   const { data: counts } = await supabase.from("menu_items").select("section")
   const sectionCounts = {}
   for (const c of counts || []) {
@@ -116,9 +115,9 @@ async function run() {
   }
   console.log("\nFinal counts by section:")
   for (const [s, c] of Object.entries(sectionCounts)) {
-    console.log(`  ${s}: ${c}`)
+    if (c) console.log(`  ${s}: ${c}`)
   }
-  console.log(`  TOTAL: ${counts?.length || 0}`)
+  console.log(`\nTOTAL: ${counts?.length || 0} items`)
 }
 
-run()
+run().catch(console.error)
