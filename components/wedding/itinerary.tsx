@@ -15,7 +15,7 @@ function EventPopover({ event }: { event: TimelineEvent }) {
       animate={{ opacity: 1, y: 0, scale: 1 }}
       exit={{ opacity: 0, y: 8, scale: 0.97 }}
       transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
-      className="absolute left-16 top-0 z-30 w-72 origin-top-left md:left-auto md:right-full md:mr-6 md:origin-top-right"
+      className="absolute left-0 right-0 top-0 z-30 mx-auto w-full max-w-[300px] origin-top md:left-auto md:right-full md:mr-6 md:w-72 md:origin-top-right"
     >
       <div className="relative rounded-sm border border-gold/60 bg-background p-5 text-left text-foreground shadow-2xl">
         {/* top gold rule */}
