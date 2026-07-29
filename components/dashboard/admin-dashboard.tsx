@@ -8,6 +8,7 @@ import { RsvpsPage } from "./pages/rsvps-page"
 import { VendorsPage } from "./pages/vendors-page"
 import { InvoicesPage } from "./pages/invoices-page"
 import { SettingsPage } from "./pages/settings-page"
+import { ChecklistPage } from "./pages/checklist-page"
 import { CateringDashboard } from "./catering-dashboard"
 import { EmailsPage } from "./emails-page"
 import type { PageKey } from "./nav"
@@ -32,6 +33,10 @@ const pageMeta: Record<PageKey, { title: string; subtitle: string }> = {
   invoices: {
     title: "Invoices",
     subtitle: "Keep payments organized and on time.",
+  },
+  checklist: {
+    title: "Wedding Checklist",
+    subtitle: "Track every detail from engagement to \"I do.\"",
   },
   emails: {
     title: "Email Templates",
@@ -88,6 +93,7 @@ export function AdminDashboard() {
             {page === "menu" && <CateringDashboard />}
             {page === "vendors" && <VendorsPage />}
             {page === "invoices" && <InvoicesPage />}
+            {page === "checklist" && <ChecklistPage />}
             {page === "emails" && <EmailsPage />}
             {page === "settings" && <SettingsPage />}
           </div>

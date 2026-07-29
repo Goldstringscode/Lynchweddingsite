@@ -6,6 +6,7 @@ import {
   ReceiptText,
   Mail,
   Settings,
+  ClipboardCheck,
   type LucideIcon,
 } from "lucide-react"
 
@@ -15,6 +16,7 @@ export type PageKey =
   | "menu"
   | "vendors"
   | "invoices"
+  | "checklist"
   | "emails"
   | "settings"
 
@@ -30,6 +32,7 @@ export const navItems: NavItem[] = [
   { key: "menu", label: "Menu & Catering", icon: UtensilsCrossed },
   { key: "vendors", label: "Vendors", icon: Store },
   { key: "invoices", label: "Invoices", icon: ReceiptText },
+  { key: "checklist", label: "Checklist", icon: ClipboardCheck },
   { key: "emails", label: "Email Templates", icon: Mail },
   { key: "settings", label: "Settings", icon: Settings },
 ]

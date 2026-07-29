@@ -41,7 +41,7 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
   colorScheme: 'light',
-  themeColor: '#ffffff',
+  themeColor: '#fafafa',
 }
 
 export default function RootLayout({
@@ -55,6 +55,24 @@ export default function RootLayout({
       className={`light bg-background ${playfair.variable} ${montserrat.variable}`}
       style={{ backgroundColor: '#fafafa' }}
     >
+      {/* Critical inline CSS — loads before external CSS imports to prevent gray flash */}
+      <style
+        dangerouslySetInnerHTML={{
+          __html: [
+            'html, body, [data-nextjs-root], #__next {',
+            '  background-color: #fafafa !important;',
+            '}',
+            ':root {',
+            '  --background: oklch(0.98 0 0);',
+            '  --foreground: oklch(0.15 0 0);',
+            '}',
+            '.dark, :root:not(.light) {',
+            '  --background: oklch(0.145 0 0);',
+            '  --foreground: oklch(0.985 0 0);',
+            '}',
+          ].join('\n'),
+        }}
+      />
       <body className="font-sans antialiased" style={{ backgroundColor: '#fafafa' }}>
         {children}
         {process.env.NODE_ENV === 'production' && <Analytics />}
