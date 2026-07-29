@@ -66,16 +66,27 @@ export function RsvpsPage() {
     .reduce((sum, g) => sum + g.partySize, 0)
 
   function toggleCheckIn(id: string) {
-    setGuests((prev) =>
-      prev.map((g) =>
-        g.id === id
-          ? {
-              ...g,
-              status: g.status === "Checked-In" ? "Accepted" : "Checked-In",
-            }
-          : g
-      )
-    )
+    const guest = guests.find((g) => g.id === id)
+    if (!guest) return
+    const newStatus = guest.status === "Checked-In" ? false : true
+    fetch(`/api/rsvp/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ check_in: newStatus }),
+    })
+      .then((r) => {
+        if (!r.ok) throw new Error("Failed to update check-in")
+        setGuests((prev) =>
+          prev.map((g) =>
+            g.id === id
+              ? { ...g, status: g.status === "Checked-In" ? "Accepted" : "Checked-In" }
+              : g
+          )
+        )
+      })
+      .catch((err) => {
+        alert("Failed to update check-in: " + err.message)
+      })
   }
 
   return (

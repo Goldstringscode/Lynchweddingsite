@@ -43,15 +43,27 @@ export function VendorsPage() {
   function handleAdd(e: React.FormEvent) {
     e.preventDefault()
     if (!form.name.trim()) return
-    const newVendor: Vendor = {
-      id: `v${Date.now()}`,
-      name: form.name.trim(),
-      category: form.category,
-      contact: form.contact.trim() || "—",
-      status: form.status,
-      cost: Number(form.cost) || 0,
-    }
-    setVendors((prev) => [newVendor, ...prev])
+    fetch("/api/vendors", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name: form.name.trim(),
+        category: form.category,
+        contact: form.contact.trim() || null,
+        status: form.status.toLowerCase(),
+        fee: Number(form.cost) || 0,
+      }),
+    })
+      .then((r) => {
+        if (!r.ok) throw new Error("Failed to add vendor")
+        return r.json()
+      })
+      .then((saved) => {
+        setVendors((prev) => [toVendor(saved), ...prev])
+      })
+      .catch((err) => {
+        alert("Failed to add vendor: " + err.message)
+      })
     setForm(emptyForm)
     setOpen(false)
   }

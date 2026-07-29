@@ -53,13 +53,16 @@ export function Rsvp() {
       const res = await fetch("/api/rsvp", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, phone: "", guest_count: parseInt(guests), meal_choice: meal, guest_meal: guests === "2" ? guestMeal : null, is_attending: attendance === "accept" }),
+        body: JSON.stringify({ name, email, phone: "", guest_count: parseInt(guests), meal_choice: meal, guest_meal: guests === "2" ? guestMeal : null, dietary, is_attending: attendance === "accept" }),
       })
       if (res.ok) {
         const data = await res.json()
         setSubmitted({ name, email, guests, meal, guestMeal: guests === "2" ? guestMeal : null, dietary, attendance, code: data.access_code || accessCode })
+      } else if (res.status === 409) {
+        const err = await res.json()
+        alert(err.error || "A guest with this email has already RSVP'd.")
       } else {
-        setSubmitted({ name, email, guests, meal, guestMeal: guests === "2" ? guestMeal : null, dietary, attendance, code: accessCode })
+        alert("Something went wrong submitting your RSVP. Please try again or contact the wedding planner.")
       }
     } catch {
       setSubmitted({ name, email, guests, meal, guestMeal: guests === "2" ? guestMeal : null, dietary, attendance, code: accessCode })

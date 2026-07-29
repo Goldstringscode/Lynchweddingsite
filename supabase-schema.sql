@@ -14,6 +14,7 @@ CREATE TABLE guests (
   access_code TEXT UNIQUE NOT NULL,
   meal_choice TEXT,
   guest_meal TEXT,
+  dietary TEXT,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
