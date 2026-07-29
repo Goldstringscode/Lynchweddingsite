@@ -1,5 +1,6 @@
 "use client"
 
+import { Suspense } from "react"
 import { useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { Lock, Eye, EyeOff, ArrowLeft } from "lucide-react"
@@ -9,7 +10,7 @@ import { Label } from "@/components/ui/label"
 import { wedding } from "@/lib/wedding-data"
 import Link from "next/link"
 
-export default function AdminLoginPage() {
+function LoginForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const redirect = searchParams.get("redirect") || "/admin"
@@ -116,5 +117,22 @@ export default function AdminLoginPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function AdminLoginPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex min-h-svh items-center justify-center bg-background px-4">
+        <div className="text-center">
+          <div className="mx-auto flex size-14 items-center justify-center rounded-full bg-primary/10">
+            <Lock className="size-6 text-primary" />
+          </div>
+          <p className="mt-4 font-serif text-lg text-muted-foreground">Loading...</p>
+        </div>
+      </div>
+    }>
+      <LoginForm />
+    </Suspense>
   )
 }
