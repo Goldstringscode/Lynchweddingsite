@@ -79,7 +79,7 @@ export const itinerary: TimelineEvent[] = [
     duration: "7:00 – 7:30 PM",
     location: "Four Seasons at Terra Lago, Indio",
     details:
-      "Join us for a plated three-course dinner, heartfelt toasts, and the cutting of the cake beneath the magnolias.",
+      "Join us for a plated three-course dinner, heartfelt toasts, and the cutting of the cake beneath the calla lillies.",
   },
   {
     time: "7:30 PM",
