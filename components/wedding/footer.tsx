@@ -19,7 +19,7 @@ export function Footer() {
       </p>
       <div className="mt-8">
         <Link
-          href="/admin"
+          href="/admin/login"
           className="font-sans text-[0.6rem] uppercase tracking-[0.3em] text-muted-foreground/40 hover:text-[#355E3B] transition-colors"
         >
           Admin / Wedding Staff Login

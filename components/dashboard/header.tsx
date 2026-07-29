@@ -1,5 +1,6 @@
 "use client"
 
+import { useRouter } from "next/navigation"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -21,6 +22,13 @@ interface HeaderProps {
 }
 
 export function Header({ title, subtitle, onOpenMobile }: HeaderProps) {
+  const router = useRouter()
+
+  async function handleSignOut() {
+    await fetch("/api/admin/logout", { method: "POST" })
+    router.push("/admin/login")
+  }
+
   return (
     <header className="sticky top-0 z-30 flex h-16 items-center gap-3 border-b border-border bg-background/80 px-4 backdrop-blur-md lg:px-8">
       <button
@@ -99,7 +107,7 @@ export function Header({ title, subtitle, onOpenMobile }: HeaderProps) {
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem variant="destructive">
+            <DropdownMenuItem variant="destructive" onClick={handleSignOut}>
               <LogOut />
               Sign out
             </DropdownMenuItem>
