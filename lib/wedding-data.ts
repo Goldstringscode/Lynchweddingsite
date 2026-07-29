@@ -34,7 +34,7 @@ export const itinerary: TimelineEvent[] = [
   {
     time: "4:00 PM",
     title: "The Ceremony",
-    description: "Join us as we exchange vows in the garden chapel.",
+    description: "Join us as we exchange vows in the chapel.",
     icon: Church,
     duration: "4:00 – 4:45 PM",
     location: "Four Seasons at Terra Lago, Indio",
