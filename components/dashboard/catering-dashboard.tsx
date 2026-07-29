@@ -6,6 +6,7 @@ import { AnalyticsTab } from "./analytics-tab"
 import { EditMenuTab } from "./edit-menu-tab"
 import { PreviewExportTab } from "./preview-export-tab"
 import { MenuBuilderTab } from "../menu-builder/menu-builder-tab"
+import { ErrorBoundary } from "../error-boundary"
 
 export function CateringDashboard() {
   return (
@@ -31,7 +32,9 @@ export function CateringDashboard() {
         </TabsList>
 
         <TabsContent value="builder">
-          <MenuBuilderTab />
+          <ErrorBoundary>
+            <MenuBuilderTab />
+          </ErrorBoundary>
         </TabsContent>
 
         <TabsContent value="analytics">

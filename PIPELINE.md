@@ -88,8 +88,13 @@ npm run lint         # Lint check
 ```
 
 ## Recent Changes (2026-07-29)
-
-1. ✅ **Wedding Checklist** — Admin tab with 130 tasks, Supabase-backed, toggle-able
-2. ✅ **Gray screen flash fix** — Critical inline CSS + themeColor + admin layout wrapper + loading states
-3. ✅ **NEXUS Safety Monitor** — System-wide runtime safety (arXiv 2607.19356)
-4. ✅ **Mass assignment fix** — Field whitelist for PATCH/POST endpoints
+## Recent Changes (2026-07-29)
+1. ✅ **Menu Builder V2** — Complete rewrite with side toggle (one/either/both), measurable portions (g/oz), real-time nutrition summary, menu comparison (side-by-side prices/weights/calories/nutrition), CPI-based inflation projection, and settings dialog.
+2. ✅ **Standalone Couple Portal** — `/menu-builder` route with wedding code auth (`JNLynch26`), beautiful romantic design matching wedding site aesthetic.
+3. ✅ **120 Menu Items Seeded** — 30+ items per section (appetizers, proteins, sides, desserts) with Costco/WinCo pricing, portion weights in grams/oz, full nutrition data, difficulty ratings, prep times, and smart suggested pairings (proteins → sides).
+4. ✅ **Inflation API** — `/api/inflation` endpoint returns historical CPI data (2015-2026) and projections to 2040. Free FRED API key available at https://fred.stlouisfed.org for live data.
+5. ✅ **Menu Comparison API** — `/api/menu/compare?ids=id1,id2` returns side-by-side cost, weight, and nutrition data across up to 5 drafts.
+6. ✅ **Wedding Checklist** — Admin tab with 130 tasks, Supabase-backed, toggle-able
+7. ✅ **Gray screen flash fix** — Critical inline CSS + themeColor + admin layout wrapper + loading states
+8. ✅ **NEXUS Safety Monitor** — System-wide runtime safety (arXiv 2607.19356)
+9. ✅ **Mass assignment fix** — Field whitelist for PATCH/POST endpoints

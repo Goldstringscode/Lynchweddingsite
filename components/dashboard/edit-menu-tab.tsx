@@ -5,131 +5,314 @@ import {
   Card, CardContent, CardDescription, CardHeader, CardTitle,
 } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
 import { Badge } from "@/components/ui/badge"
 import {
-  Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger,
+  Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle,
 } from "@/components/ui/dialog"
 import {
-  Plus, Pencil, Trash2, ArrowUp, ArrowDown, UtensilsCrossed, Loader2,
+  Plus, Trash2, UtensilsCrossed, Loader2, Coffee, Beef, Salad, CakeSlice, ArrowLeft,
 } from "lucide-react"
 
-interface MenuItem {
-  id: string; category: string; name: string; description: string; price: number | null
-  sort_order: number; is_available: boolean; section?: string | null
+interface MenuDraftCourse {
+  course_number: number
+  course_type: string
+  item_id: string
+  portion_size: string
+  notes?: string
 }
 
-const CATEGORIES = ["Appetizers", "Salads & Soups", "Main Courses", "Sides", "Desserts", "Cocktails & Drinks", "Wine List", "Kids Menu"]
+interface MenuDraft {
+  id: string
+  name: string
+  description?: string
+  event_type?: string
+  guest_count?: number
+  courses: MenuDraftCourse[]
+  total_cost_per_person?: number
+  total_menu_cost?: number
+  created_at: string
+  updated_at: string
+}
+
+interface CatalogItem {
+  id: string
+  name: string
+  description: string
+  category: string
+  section: string | null
+  price: number | null
+  suggested_menu_price?: number | null
+  cost_per_serving?: number | null
+  is_available: boolean
+  is_signature: boolean
+  portion_weight_g?: number | null
+  difficulty?: string | null
+  prep_time?: number | null
+}
+
+const COURSE_ORDER_UI = ["hors-doeuvres", "appetizer", "protein", "side", "dessert"]
+
+const COURSE_LABELS: Record<string, string> = {
+  "hors-doeuvres": "Hors d'Oeuvres",
+  appetizer: "Appetizers",
+  protein: "Proteins / Entrées",
+  side: "Sides",
+  dessert: "Desserts",
+}
+
+const COURSE_ICONS: Record<string, any> = {
+  "hors-doeuvres": Coffee,
+  appetizer: Coffee,
+  protein: Beef,
+  side: Salad,
+  dessert: CakeSlice,
+}
 
 export function EditMenuTab() {
-  const [items, setItems] = useState<MenuItem[]>([]); const [loading, setLoading] = useState(true)
-  const [editingItem, setEditingItem] = useState<MenuItem | null>(null); const [dialogOpen, setDialogOpen] = useState(false)
-  const fetchItems = useCallback(async () => {
-    const r = await fetch("/api/menu"); setItems((await r.json()) || []); setLoading(false)
+  const [drafts, setDrafts] = useState<MenuDraft[]>([])
+  const [catalog, setCatalog] = useState<CatalogItem[]>([])
+  const [loading, setLoading] = useState(true)
+  const [selectedDraftId, setSelectedDraftId] = useState<string | null>(null)
+  const [editIngredientOpen, setEditIngredientOpen] = useState(false)
+  const [editingCourse, setEditingCourse] = useState<MenuDraftCourse | null>(null)
+
+  const fetchData = useCallback(async () => {
+    try {
+      const [draftsRes, catalogRes] = await Promise.all([
+        fetch("/api/menu/drafts"),
+        fetch("/api/menu"),
+      ])
+      const draftsData = await draftsRes.json()
+      const catalogData = await catalogRes.json()
+      setDrafts(Array.isArray(draftsData) ? draftsData : [])
+      setCatalog(Array.isArray(catalogData) ? catalogData : [])
+    } catch { /* ignore */ }
+    setLoading(false)
   }, [])
 
-  useEffect(() => { fetchItems() }, [fetchItems])
+  useEffect(() => { fetchData() }, [fetchData])
 
-  const handleSave = async (item: Partial<MenuItem> & { id?: string }) => {
-    const method = item.id ? "PUT" : "POST"
-    await fetch("/api/menu", { method, headers: { "Content-Type": "application/json" }, body: JSON.stringify(item) })
-    fetchItems(); setDialogOpen(false); setEditingItem(null)
+  const selectedDraft = drafts.find(d => d.id === selectedDraftId)
+
+  const catalogMap = new Map(catalog.map(i => [i.id, i]))
+
+  const handleRemoveItem = async (courseNumber: number) => {
+    if (!selectedDraft) return
+    const updatedCourses = selectedDraft.courses.filter(c => c.course_number !== courseNumber)
+    await fetch("/api/menu/drafts", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id: selectedDraft.id, courses: updatedCourses }),
+    })
+    fetchData()
   }
 
-  const handleDelete = async (id: string) => {
-    if (!confirm("Delete this menu item?")) return
-    await fetch(`/api/menu?id=${id}`, { method: "DELETE" }); fetchItems()
+  const handleDeleteDraft = async () => {
+    if (!selectedDraft || !confirm(`Delete the menu "${selectedDraft.name}"?`)) return
+    await fetch(`/api/menu/drafts?id=${selectedDraft.id}`, { method: "DELETE" })
+    setSelectedDraftId(null)
+    fetchData()
   }
 
-  if (loading) return <div className="flex items-center justify-center py-20"><Loader2 className="size-6 animate-spin text-muted-foreground" /></div>
+  // Group courses by type for display
+  const grouped: Record<string, MenuDraftCourse[]> = {}
+  if (selectedDraft) {
+    for (const course of selectedDraft.courses) {
+      const type = course.course_type || "appetizer"
+      if (!grouped[type]) grouped[type] = []
+      grouped[type].push(course)
+    }
+  }
 
-  const grouped = CATEGORIES.map(cat => ({
-    category: cat,
-    items: items.filter(i => i.category === cat).sort((a, b) => a.sort_order - b.sort_order)
-  })).filter(g => g.items.length > 0)
+  if (loading) {
+    return <div className="flex items-center justify-center py-20"><Loader2 className="size-6 animate-spin text-muted-foreground" /></div>
+  }
 
+  // Menu selector view
+  if (!selectedDraftId) {
+    return (
+      <div className="space-y-6">
+        <div>
+          <h3 className="font-serif text-lg font-medium">Your Saved Menus</h3>
+          <p className="text-sm text-muted-foreground">Select a menu to view and edit its selected items.</p>
+        </div>
+
+        {drafts.length === 0 ? (
+          <Card>
+            <CardContent className="py-12 text-center">
+              <UtensilsCrossed className="mx-auto size-12 text-muted-foreground/40 mb-4" />
+              <p className="text-muted-foreground">No menus created yet.</p>
+              <p className="text-xs text-muted-foreground/60 mt-1">Go to the Builder tab to create your first menu.</p>
+            </CardContent>
+          </Card>
+        ) : (
+          <div className="grid gap-3 sm:grid-cols-2">
+            {drafts.map(draft => (
+              <button
+                key={draft.id}
+                onClick={() => setSelectedDraftId(draft.id)}
+                className="rounded-lg border bg-card p-4 text-left transition-all hover:border-primary hover:bg-accent/20"
+              >
+                <p className="font-medium">{draft.name}</p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  {draft.courses.length} item{draft.courses.length !== 1 ? "s" : ""}
+                  {draft.guest_count ? ` · ${draft.guest_count} guests` : ""}
+                </p>
+                <p className="text-xs text-muted-foreground/60 mt-0.5">
+                  Created {new Date(draft.created_at).toLocaleDateString()}
+                </p>
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+    )
+  }
+
+  // Menu detail/edit view
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <div><h3 className="font-serif text-lg font-medium">Menu Items</h3><p className="text-sm text-muted-foreground">{items.length} items</p></div>
-        <Dialog open={dialogOpen && !editingItem} onOpenChange={o => { setDialogOpen(o); if (!o) setEditingItem(null) }}>
-          <DialogTrigger asChild><Button className="gap-2"><Plus className="size-4" />Add Item</Button></DialogTrigger>
-          <DialogContent className="sm:max-w-lg"><MenuForm onSave={handleSave} onCancel={() => { setDialogOpen(false); setEditingItem(null) }} /></DialogContent>
-        </Dialog>
+        <div className="flex items-center gap-3">
+          <Button variant="ghost" size="icon" className="size-8" onClick={() => setSelectedDraftId(null)}>
+            <ArrowLeft className="size-4" />
+          </Button>
+          <div>
+            <h3 className="font-serif text-lg font-medium">{selectedDraft?.name}</h3>
+            <p className="text-sm text-muted-foreground">
+              {selectedDraft?.courses.length ?? 0} item{(selectedDraft?.courses.length ?? 0) !== 1 ? "s" : ""}
+              {selectedDraft?.guest_count ? ` · ${selectedDraft.guest_count} guests` : ""}
+            </p>
+          </div>
+        </div>
+        <Button variant="outline" size="sm" className="text-destructive gap-2" onClick={handleDeleteDraft}>
+          <Trash2 className="size-3.5" /> Delete Menu
+        </Button>
       </div>
 
-      {grouped.map(({ category, items: catItems }) => (
-        <Card key={category}>
-          <CardHeader className="pb-3"><CardTitle className="font-serif text-base">{category}</CardTitle><CardDescription>{catItems.length} items</CardDescription></CardHeader>
-          <CardContent className="pt-0">
-            <div className="divide-y divide-border/50">
-              {catItems.map((item) => (
-                <div key={item.id} className="flex items-start gap-3 py-3">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
-                      <p className={`text-sm font-medium ${!item.is_available ? "line-through text-muted-foreground" : ""}`}>{item.name}</p>
-                      {!item.is_available && <Badge variant="outline" className="text-[10px]">Unavailable</Badge>}
-                    </div>
-                    {item.description && <p className="mt-0.5 text-xs text-muted-foreground line-clamp-1">{item.description}</p>}
-                  </div>
-                  <div className="flex items-center gap-2 shrink-0">
-                    {item.price !== null && <span className="text-xs tabular-nums text-muted-foreground">${item.price.toFixed(2)}</span>}
-                    <Button variant="ghost" size="icon" className="size-7" onClick={() => { setEditingItem(item); setDialogOpen(true) }}><Pencil className="size-3.5" /></Button>
-                    <Button variant="ghost" size="icon" className="size-7 text-destructive" onClick={() => handleDelete(item.id)}><Trash2 className="size-3.5" /></Button>
-                  </div>
-                </div>
-              ))}
-            </div>
+      {(!selectedDraft || selectedDraft.courses.length === 0) ? (
+        <Card>
+          <CardContent className="py-12 text-center">
+            <UtensilsCrossed className="mx-auto size-10 text-muted-foreground/30 mb-3" />
+            <p className="text-muted-foreground text-sm">This menu has no items yet.</p>
+            <p className="text-xs text-muted-foreground/60 mt-1">Go to the Builder tab to add items from the catalog.</p>
           </CardContent>
         </Card>
-      ))}
+      ) : (
+        <>
+          {COURSE_ORDER_UI.map((type) => {
+            const courses = grouped[type]
+            if (!courses || courses.length === 0) return null
+            const Icon = COURSE_ICONS[type] || Coffee
 
-      {items.length === 0 && <Card><CardContent className="py-12 text-center"><UtensilsCrossed className="mx-auto size-12 text-muted-foreground/40 mb-4" /><p className="text-muted-foreground">No menu items yet.</p></CardContent></Card>}
+            return (
+              <Card key={type}>
+                <CardHeader className="pb-3 flex flex-row items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Icon className="size-4 text-gold" />
+                    <CardTitle className="font-serif text-base">{COURSE_LABELS[type] || type}</CardTitle>
+                    <Badge variant="outline" className="text-[10px]">{courses.length}</Badge>
+                  </div>
+                </CardHeader>
+                <CardContent className="pt-0">
+                  <div className="divide-y divide-border/50">
+                    {courses.map((course) => {
+                      const item = catalogMap.get(course.item_id)
+                      if (!item) return (
+                        <div key={course.course_number} className="flex items-center py-3 text-xs text-muted-foreground italic">
+                          Unknown item (ID: {course.item_id.slice(0, 8)}...)
+                          <button
+                            onClick={() => handleRemoveItem(course.course_number)}
+                            className="ml-auto p-1 rounded hover:bg-destructive/10 text-destructive"
+                          >
+                            <Trash2 className="size-3.5" />
+                          </button>
+                        </div>
+                      )
 
-      <Dialog open={dialogOpen && !!editingItem} onOpenChange={o => { setDialogOpen(o); if (!o) setEditingItem(null) }}>
-        <DialogContent className="sm:max-w-lg">
-          {editingItem && <MenuForm initial={editingItem} onSave={handleSave} onCancel={() => { setDialogOpen(false); setEditingItem(null) }} />}
-        </DialogContent>
-      </Dialog>
+                      const price = item.suggested_menu_price ?? item.price ?? 0
+                      const cost = item.cost_per_serving
+
+                      return (
+                        <div key={course.course_number} className="flex items-start gap-3 py-3 group">
+                          {/* Item icon */}
+                          <div className="mt-0.5 text-lg shrink-0">
+                            {item.section === "hors-doeuvres" ? "\u{1F944}" :
+                             item.section === "sides" ? "\u{1F957}" :
+                             item.section === "appetizers" ? "\u{1F942}" :
+                             item.section === "desserts" ? "\u{1F370}" : "\u{1F37D}\uFE0F"}
+                          </div>
+
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2">
+                              <p className="text-sm font-medium">{item.name}</p>
+                              {item.is_signature && (
+                                <Badge variant="secondary" className="text-[8px] px-1 py-0 h-3.5">Signature</Badge>
+                              )}
+                            </div>
+                            {item.description && (
+                              <p className="mt-0.5 text-xs text-muted-foreground line-clamp-1">{item.description}</p>
+                            )}
+                            <div className="flex items-center gap-2 mt-1 text-[10px] text-muted-foreground">
+                              <span className="tabular-nums">${price.toFixed(2)}</span>
+                              {cost ? <span className="tabular-nums">· ${cost.toFixed(2)} cost</span> : null}
+                              <span>·</span>
+                              <span className="capitalize">{course.portion_size}</span>
+                              {item.difficulty && (
+                                <>
+                                  <span>·</span>
+                                  <span className="capitalize">{item.difficulty}</span>
+                                </>
+                              )}
+                            </div>
+                          </div>
+
+                          <button
+                            onClick={() => handleRemoveItem(course.course_number)}
+                            className="opacity-0 group-hover:opacity-100 p-1.5 rounded hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-all"
+                            title="Remove from menu"
+                          >
+                            <Trash2 className="size-3.5" />
+                          </button>
+                        </div>
+                      )
+                    })}
+                  </div>
+                </CardContent>
+              </Card>
+            )
+          })}
+
+          {/* Summary card */}
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="font-serif text-base">Menu Summary</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
+                <div>
+                  <p className="text-2xl font-bold">{selectedDraft.courses.length}</p>
+                  <p className="text-xs text-muted-foreground">Total Items</p>
+                </div>
+                <div>
+                  <p className="text-2xl font-bold">{drafts.length}</p>
+                  <p className="text-xs text-muted-foreground">Saved Menus</p>
+                </div>
+                <div>
+                  <p className="text-2xl font-bold">{selectedDraft.guest_count || 150}</p>
+                  <p className="text-xs text-muted-foreground">Guest Count</p>
+                </div>
+                <div>
+                  <p className="text-lg font-bold">
+                    ${selectedDraft.total_cost_per_person?.toFixed(2) ?? "\u2014"}
+                  </p>
+                  <p className="text-xs text-muted-foreground">Cost / Person</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </>
+      )}
     </div>
-  )
-}
-
-function MenuForm({ initial, onSave, onCancel }: { initial?: Partial<MenuItem>; onSave: (item: any) => void; onCancel: () => void }) {
-  const [name, setName] = useState(initial?.name || "")
-  const [description, setDescription] = useState(initial?.description || "")
-  const [category, setCategory] = useState(initial?.category || CATEGORIES[0])
-  const [price, setPrice] = useState(initial?.price?.toString() || "")
-  const [isAvailable, setIsAvailable] = useState(initial?.is_available ?? true)
-  const [saving, setSaving] = useState(false)
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault(); if (!name.trim()) return; setSaving(true)
-    await onSave({ id: initial?.id, name: name.trim(), description: description.trim(), category, price: price ? parseFloat(price) : null, is_available: isAvailable })
-    setSaving(false)
-  }
-
-  return (
-    <form onSubmit={handleSubmit}>
-      <DialogHeader><DialogTitle>{initial?.id ? "Edit Menu Item" : "Add Menu Item"}</DialogTitle><DialogDescription>Fill in the details below.</DialogDescription></DialogHeader>
-      <div className="grid gap-4 py-4">
-        <div className="grid gap-2"><label className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Name *</label><Input value={name} onChange={e => setName(e.target.value)} placeholder="e.g. Filet Mignon" required /></div>
-        <div className="grid gap-2"><label className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Description</label><Textarea value={description} onChange={e => setDescription(e.target.value)} placeholder="e.g. 8oz aged prime beef with truffle butter" rows={2} /></div>
-        <div className="grid grid-cols-2 gap-4">
-          <div className="grid gap-2"><label className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Category</label>
-            <select value={category} onChange={e => setCategory(e.target.value)} className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm">
-              {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
-            </select>
-          </div>
-          <div className="grid gap-2"><label className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Price</label><Input value={price} onChange={e => setPrice(e.target.value)} placeholder="e.g. 42.00" type="number" step="0.01" /></div>
-        </div>
-        <label className="flex items-center gap-3 text-sm"><input type="checkbox" checked={isAvailable} onChange={e => setIsAvailable(e.target.checked)} className="size-4 rounded border-border accent-primary" /> Item is available</label>
-      </div>
-      <DialogFooter>
-        <Button type="button" variant="outline" onClick={onCancel}>Cancel</Button>
-        <Button type="submit" disabled={!name.trim() || saving}>{saving ? <Loader2 className="size-4 animate-spin mr-2" /> : null}{initial?.id ? "Save Changes" : "Add Item"}</Button>
-      </DialogFooter>
-    </form>
   )
 }
