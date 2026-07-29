@@ -118,7 +118,7 @@ export const TEMPLATES: EmailTemplate[] = [
           { label: "Ceremony", value: "{{Event Date}} · Four in the Afternoon" },
           { label: "Venue", value: "{{Venue Name}}" },
           { label: "Reception", value: "Dinner & Dancing to Follow" },
-          { label: "Attire", value: "Black Tie" },
+          { label: "Attire", value: "Black Tie Event | An Evening Draped in Black" },
         ],
       },
       { id: uid("b"), type: "button", heading: "RSVP by {{RSVP Date}}" },
