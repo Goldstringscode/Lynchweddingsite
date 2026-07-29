@@ -26,13 +26,13 @@ export function Program() {
             <Button
               size="lg"
               nativeButton={false}
-              className="mt-10 h-12 rounded-none bg-primary px-10 font-sans text-sm uppercase tracking-[0.2em] text-primary-foreground hover:bg-primary/90"
+              className="mt-10 h-auto min-h-12 w-full max-w-xs rounded-none bg-primary px-6 py-3 font-sans text-xs uppercase tracking-[0.2em] text-primary-foreground hover:bg-primary/90 sm:w-auto sm:px-10 sm:text-sm"
               render={
                 <a href="/program" target="_blank" rel="noopener noreferrer" />
               }
             >
-              <Download className="size-4" aria-hidden="true" />
-              Download Wedding Program
+              <Download className="size-4 shrink-0" aria-hidden="true" />
+              <span>Download Wedding Program</span>
             </Button>
           </div>
         </Reveal>

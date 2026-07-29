@@ -87,16 +87,16 @@ export function VendorsPage() {
       </CardHeader>
 
       <CardContent>
-        <div className="overflow-hidden rounded-lg border border-border">
-          <Table>
-            <TableHeader>
-              <TableRow className="bg-muted/50 hover:bg-muted/50">
-                <TableHead className="pl-4">Vendor Name</TableHead>
-                <TableHead>Category</TableHead>
-                <TableHead>Contact Info</TableHead>
-                <TableHead>Booking Status</TableHead>
-                <TableHead className="pr-4 text-right">Total Cost</TableHead>
-              </TableRow>
+        <div className="overflow-x-auto rounded-lg border border-border">
+                  <Table>
+                    <TableHeader>
+                      <TableRow className="bg-muted/50 hover:bg-muted/50">
+                        <TableHead className="pl-4 whitespace-nowrap">Vendor Name</TableHead>
+                        <TableHead className="whitespace-nowrap">Category</TableHead>
+                        <TableHead className="whitespace-nowrap">Contact</TableHead>
+                        <TableHead className="text-right whitespace-nowrap">Fee</TableHead>
+                        <TableHead className="whitespace-nowrap">Status</TableHead>
+                        <TableHead className="pr-4 text-right whitespace-nowrap">Action</TableHead>
             </TableHeader>
             <TableBody>
               {vendors.map((v) => (

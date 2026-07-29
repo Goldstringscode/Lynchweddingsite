@@ -9,14 +9,14 @@ import { Button } from "@/components/ui/button"
  */
 export function ProgramActions() {
   return (
-    <div className="no-print fixed inset-x-0 bottom-0 z-50 flex items-center justify-center gap-3 border-t border-border bg-background/90 px-6 py-4 backdrop-blur">
+    <div className="no-print fixed inset-x-0 bottom-0 z-50 flex items-center justify-center gap-2 border-t border-border bg-background/90 px-4 py-3 backdrop-blur sm:gap-3 sm:px-6 sm:py-4">
       <Button
         type="button"
         onClick={() => window.print()}
         size="lg"
-        className="h-11 rounded-none bg-primary px-8 font-sans text-xs uppercase tracking-[0.2em] text-primary-foreground hover:bg-primary/90"
+        className="h-11 w-full max-w-[200px] rounded-none bg-primary px-4 font-sans text-[10px] uppercase tracking-[0.15em] text-primary-foreground hover:bg-primary/90 sm:w-auto sm:px-8 sm:text-xs sm:tracking-[0.2em]"
       >
-        <Download className="size-4" aria-hidden="true" />
+        <Download className="size-3.5 shrink-0 sm:size-4" aria-hidden="true" />
         Download PDF
       </Button>
       <Button
@@ -24,9 +24,9 @@ export function ProgramActions() {
         onClick={() => window.close()}
         variant="outline"
         size="lg"
-        className="h-11 rounded-none border-border px-6 font-sans text-xs uppercase tracking-[0.2em] text-foreground hover:bg-accent"
+        className="h-11 w-full max-w-[120px] rounded-none border-border px-4 font-sans text-[10px] uppercase tracking-[0.15em] text-foreground hover:bg-accent sm:w-auto sm:px-6 sm:text-xs sm:tracking-[0.2em]"
       >
-        <X className="size-4" aria-hidden="true" />
+        <X className="size-3.5 shrink-0 sm:size-4" aria-hidden="true" />
         Close
       </Button>
     </div>

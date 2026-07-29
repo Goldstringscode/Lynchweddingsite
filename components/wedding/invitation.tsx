@@ -33,36 +33,36 @@ function DetailRow({
 
 export function Invitation() {
   return (
-    <section id="details" className="bg-background px-6 py-24 md:py-32">
+    <section id="details" className="bg-background px-4 py-20 sm:px-6 sm:py-24 md:py-32">
       <div className="mx-auto max-w-4xl">
         <Reveal className="text-center">
-          <p className="font-sans text-xs uppercase tracking-[0.4em] text-gold">
+          <p className="font-sans text-[10px] uppercase tracking-[0.3em] text-gold sm:text-xs sm:tracking-[0.4em]">
             You are cordially invited
           </p>
-          <h2 className="mt-4 text-balance font-serif text-4xl font-medium text-foreground md:text-5xl">
+          <h2 className="mt-3 text-balance font-serif text-3xl font-medium text-foreground sm:text-4xl md:text-5xl">
             The Celebration
           </h2>
-          <Divider className="mt-6" />
+          <Divider className="mt-5 sm:mt-6" />
         </Reveal>
 
         <Reveal delay={0.1}>
-          <div className="relative mt-14 overflow-hidden border border-primary/40 bg-card p-4 shadow-xl sm:p-6">
+          <div className="relative mt-10 sm:mt-14 overflow-hidden border border-primary/30 bg-card p-3 shadow-xl sm:p-6">
             <CornerAccents />
-            <div className="border border-gold/40 p-6 sm:p-10">
-              <div className="grid items-center gap-10 md:grid-cols-2">
+            <div className="border border-gold/30 p-4 sm:p-10">
+              <div className="grid items-center gap-8 md:grid-cols-2 md:gap-10">
                 {/* Framed photo */}
-                <div className="relative mx-auto w-full max-w-sm">
-                  <div className="absolute -inset-2 border border-gold/50" />
+                <div className="relative mx-auto w-full max-w-[260px] sm:max-w-sm">
+                  <div className="absolute -inset-1.5 border border-gold/50 sm:-inset-2" />
                   <img
                     src="/images/couple-portrait.png"
                     alt={`Portrait of ${wedding.brideFirst} and ${wedding.groomFirst}`}
-                    className="relative aspect-[4/5] w-full object-cover"
+                    className="relative aspect-[3/4] w-full object-cover sm:aspect-[4/5]"
                   />
                 </div>
 
                 {/* Details */}
                 <div>
-                  <p className="text-center font-serif text-2xl text-foreground md:text-left">
+                  <p className="text-center font-serif text-xl text-foreground sm:text-2xl md:text-left">
                     {wedding.brideName}
                     <span className="mx-2 text-gold">&amp;</span>
                     {wedding.groomName}
@@ -72,7 +72,7 @@ export function Invitation() {
                     and begin their life together.
                   </p>
 
-                  <div className="mt-8 space-y-6">
+                  <div className="mt-6 space-y-5 sm:mt-8 sm:space-y-6">
                     <DetailRow
                       icon={Calendar}
                       label="Date"

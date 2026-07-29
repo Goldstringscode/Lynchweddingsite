@@ -49,16 +49,16 @@ export function InvoicesPage() {
       </CardHeader>
 
       <CardContent>
-        <div className="overflow-hidden rounded-lg border border-border">
+        <div className="overflow-x-auto rounded-lg border border-border">
           <Table>
             <TableHeader>
               <TableRow className="bg-muted/50 hover:bg-muted/50">
-                <TableHead className="pl-4">Invoice #</TableHead>
-                <TableHead>Vendor Name</TableHead>
-                <TableHead className="text-right">Amount</TableHead>
-                <TableHead>Due Date</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="pr-4 text-right">Action</TableHead>
+                <TableHead className="pl-4 whitespace-nowrap">Invoice #</TableHead>
+                <TableHead className="whitespace-nowrap">Vendor Name</TableHead>
+                <TableHead className="text-right whitespace-nowrap">Amount</TableHead>
+                <TableHead className="whitespace-nowrap">Due Date</TableHead>
+                <TableHead className="whitespace-nowrap">Status</TableHead>
+                <TableHead className="pr-4 text-right whitespace-nowrap">Action</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>

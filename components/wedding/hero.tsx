@@ -31,10 +31,10 @@ export function Hero() {
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1, delay: 0.15 }}
-          className="mt-6 text-balance font-serif text-6xl font-medium leading-none sm:text-7xl md:text-8xl"
+          className="mt-4 text-balance font-serif text-4xl font-medium leading-none sm:text-6xl md:text-7xl lg:text-8xl"
         >
           {wedding.brideFirst}
-          <span className="mx-3 inline-block text-gold">&amp;</span>
+          <span className="mx-2 inline-block text-gold sm:mx-3">&amp;</span>
           {wedding.groomFirst}
         </motion.h1>
 

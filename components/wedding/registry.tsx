@@ -31,7 +31,7 @@ export function Registry() {
           <Button
             size="lg"
             nativeButton={false}
-            className="mt-10 h-12 rounded-none bg-primary px-10 font-sans text-sm uppercase tracking-[0.2em] text-primary-foreground hover:bg-primary/90"
+            className="mt-10 h-auto min-h-12 w-full max-w-xs rounded-none bg-primary px-6 py-3 font-sans text-xs uppercase tracking-[0.2em] text-primary-foreground hover:bg-primary/90 sm:w-auto sm:px-10 sm:text-sm"
             render={
               <a
                 href={wedding.registryUrl}
@@ -40,8 +40,8 @@ export function Registry() {
               />
             }
           >
-            <Gift className="size-4" aria-hidden="true" />
-            Visit HoneyFund
+            <Gift className="size-4 shrink-0" aria-hidden="true" />
+            <span>Visit HoneyFund</span>
           </Button>
         </Reveal>
       </div>

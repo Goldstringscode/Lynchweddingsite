@@ -129,18 +129,18 @@ export function RsvpsPage() {
       </CardHeader>
 
       <CardContent className="flex flex-col gap-4">
-        <div className="overflow-hidden rounded-lg border border-border">
+        <div className="overflow-x-auto rounded-lg border border-border">
           <Table>
             <TableHeader>
               <TableRow className="bg-muted/50 hover:bg-muted/50">
-                <TableHead className="pl-4">Guest Name</TableHead>
-                <TableHead>Email</TableHead>
-                <TableHead className="text-center">Party</TableHead>
-                <TableHead>Meal</TableHead>
-                <TableHead>Dietary</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Submitted</TableHead>
-                <TableHead className="pr-4 text-right">Action</TableHead>
+                <TableHead className="pl-4 whitespace-nowrap">Guest Name</TableHead>
+                <TableHead className="whitespace-nowrap">Email</TableHead>
+                <TableHead className="text-center whitespace-nowrap">Party</TableHead>
+                <TableHead className="whitespace-nowrap">Meal</TableHead>
+                <TableHead className="whitespace-nowrap">Dietary</TableHead>
+                <TableHead className="whitespace-nowrap">Status</TableHead>
+                <TableHead className="whitespace-nowrap">Submitted</TableHead>
+                <TableHead className="pr-4 text-right whitespace-nowrap">Action</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
