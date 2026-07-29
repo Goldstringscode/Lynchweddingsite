@@ -12,6 +12,8 @@ CREATE TABLE guests (
   check_in BOOLEAN NOT NULL DEFAULT false,
   check_in_at TIMESTAMPTZ,
   access_code TEXT UNIQUE NOT NULL,
+  meal_choice TEXT,
+  guest_meal TEXT,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
@@ -62,23 +64,19 @@ CREATE TABLE wedding_settings (
   created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
--- Seed data: 15 guests
-INSERT INTO guests (name, email, phone, guest_count, is_attending, check_in, access_code) VALUES
-  ('John Smith', 'john@example.com', '555-0101', 2, true, false, 'RSVP-001'),
-  ('Sarah Johnson', 'sarah@example.com', '555-0102', 1, true, true, 'RSVP-002'),
-  ('Michael Brown', 'michael@example.com', '555-0103', 3, true, false, 'RSVP-003'),
-  ('Emily Davis', 'emily@example.com', '555-0104', 2, false, false, 'RSVP-004'),
-  ('James Wilson', 'james@example.com', '555-0105', 1, true, false, 'RSVP-005'),
-  ('Jessica Taylor', 'jessica@example.com', '555-0106', 2, true, false, 'RSVP-006'),
-  ('David Anderson', 'david@example.com', '555-0107', 4, true, false, 'RSVP-007'),
-  ('Ashley Thomas', 'ashley@example.com', '555-0108', 1, false, false, 'RSVP-008'),
-  ('Christopher Jackson', 'chris@example.com', '555-0109', 2, true, false, 'RSVP-009'),
-  ('Amanda White', 'amanda@example.com', '555-0110', 3, true, false, 'RSVP-010'),
-  ('Daniel Harris', 'daniel@example.com', '555-0111', 1, true, false, 'RSVP-011'),
-  ('Stephanie Martin', 'stephanie@example.com', '555-0112', 2, false, false, 'RSVP-012'),
-  ('Matthew Garcia', 'matthew@example.com', '555-0113', 3, true, false, 'RSVP-013'),
-  ('Nicole Robinson', 'nicole@example.com', '555-0114', 1, true, false, 'RSVP-014'),
-  ('Ryan Clark', 'ryan@example.com', '555-0115', 2, true, false, 'RSVP-015');
+-- Seed data: 11 guests (no parties larger than 2)
+INSERT INTO guests (name, email, phone, guest_count, is_attending, check_in, access_code, meal_choice, guest_meal) VALUES
+  ('John Smith', 'john@example.com', '555-0101', 2, true, false, 'RSVP-001', 'Beef', 'Chicken'),
+  ('Sarah Johnson', 'sarah@example.com', '555-0102', 1, true, true, 'RSVP-002', 'Fish', NULL),
+  ('Emily Davis', 'emily@example.com', '555-0104', 2, false, false, 'RSVP-004', NULL, NULL),
+  ('James Wilson', 'james@example.com', '555-0105', 1, true, false, 'RSVP-005', 'Beef', NULL),
+  ('Jessica Taylor', 'jessica@example.com', '555-0106', 2, true, false, 'RSVP-006', 'Chicken', 'Vegan'),
+  ('Ashley Thomas', 'ashley@example.com', '555-0108', 1, false, false, 'RSVP-008', NULL, NULL),
+  ('Christopher Jackson', 'chris@example.com', '555-0109', 2, true, false, 'RSVP-009', 'Pork', 'Beef'),
+  ('Daniel Harris', 'daniel@example.com', '555-0111', 1, true, false, 'RSVP-011', 'Vegan', NULL),
+  ('Stephanie Martin', 'stephanie@example.com', '555-0112', 2, false, false, 'RSVP-012', NULL, NULL),
+  ('Nicole Robinson', 'nicole@example.com', '555-0114', 1, true, false, 'RSVP-014', 'Fish', NULL),
+  ('Ryan Clark', 'ryan@example.com', '555-0115', 2, true, false, 'RSVP-015', 'Beef', 'Pork');
 
 -- Seed vendors
 INSERT INTO vendors (name, category, contact, phone, email, fee, status) VALUES
