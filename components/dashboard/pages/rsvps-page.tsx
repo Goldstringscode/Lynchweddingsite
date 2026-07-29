@@ -20,7 +20,7 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { RsvpStatusBadge, MealBadge } from "../status-badge"
 import { formatDate, type Guest } from "@/lib/data"
-import { Search, ChevronLeft, ChevronRight, UserCheck, Undo2 } from "lucide-react"
+import { Search, ChevronLeft, ChevronRight, UserCheck, Undo2, Users } from "lucide-react"
 
 const PAGE_SIZE = 8
 
@@ -60,6 +60,10 @@ export function RsvpsPage() {
   const currentPage = Math.min(page, totalPages)
   const start = (currentPage - 1) * PAGE_SIZE
   const paged = filtered.slice(start, start + PAGE_SIZE)
+  const totalHeadCount = guests.reduce((sum, g) => sum + g.partySize, 0)
+  const attendingHeadCount = guests
+    .filter((g) => g.status !== "Declined")
+    .reduce((sum, g) => sum + g.partySize, 0)
 
   function toggleCheckIn(id: string) {
     setGuests((prev) =>
@@ -75,7 +79,22 @@ export function RsvpsPage() {
   }
 
   return (
-    <Card>
+    <>
+      {/* Big counter */}
+      <div className="flex items-center gap-6 rounded-lg border border-border bg-card p-6 shadow-sm">
+        <div className="flex size-14 items-center justify-center rounded-full bg-primary/10">
+          <Users className="size-7 text-primary" />
+        </div>
+        <div>
+          <p className="text-3xl font-serif font-medium text-foreground tabular-nums">
+            {attendingHeadCount}
+          </p>
+          <p className="text-sm text-muted-foreground">
+            Total Guests{attendingHeadCount !== totalHeadCount ? ` (${totalHeadCount} including declined)` : ""}
+          </p>
+        </div>
+      </div>
+      <Card>
       <CardHeader className="gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex flex-col gap-1">
           <CardTitle className="font-serif text-lg">Guest List</CardTitle>
@@ -212,5 +231,6 @@ export function RsvpsPage() {
         </div>
       </CardContent>
     </Card>
+    </>
   )
 }
