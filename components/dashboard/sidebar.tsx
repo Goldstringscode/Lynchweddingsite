@@ -43,7 +43,7 @@ export function Sidebar({
             </span>
             <div className="leading-tight">
               <p className="font-serif text-lg font-semibold tracking-wide">
-                Évora
+                The Lynch&#39;s
               </p>
               <p className="text-[11px] tracking-widest text-sidebar-foreground/50 uppercase">
                 Concierge
