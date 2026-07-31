@@ -1,6 +1,6 @@
 "use client"
 
-import { Search, Sparkles, Plus, Salad, Beef, Cookie, Weight, Flame, Clock, Check } from "lucide-react"
+import { Search, Sparkles, Plus, Salad, Beef, Cookie, Weight, Flame, Clock, Check, Store } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
@@ -31,48 +31,65 @@ export interface MenuItem {
   allergens?: string[] | null
   suggested_pairings?: string[] | null
   ingredient_list?: {
-    item: string
-    quantity: string
-    costcoPrice?: number
-    wincoPrice?: number
-  }[]
-  ingredient_links?: {
-    costco?: { costPerServing: number; totalFor150: number }
-    winco?: { costPerServing: number; totalFor150: number }
-    blended?: { costPerServing: number; totalFor150: number }
-    savingsPerServing?: number
-    savingsPercent?: number
-    menuPrice?: number
-    profitMargin?: number
-    lastUpdated?: string
-  }
+      item: string
+      quantity: string
+      costcoPrice?: number
+      wincoPrice?: number
+      samsClubPrice?: number
+    }[]
+    ingredient_links?: {
+      costco?: { costPerServing: number; totalFor150: number }
+      winco?: { costPerServing: number; totalFor150: number }
+      sams?: { costPerServing: number; totalFor150: number }
+      blended?: { costPerServing: number; totalFor150: number }
+      savingsPerServing?: number
+      savingsPercent?: number
+      menuPrice?: number
+      profitMargin?: number
+      lastUpdated?: string
+    }
 }
 
 interface Props {
   items: MenuItem[]
   sectionFilter: string
+  activeSections?: Set<string>
   searchQuery: string
+  sortOrder?: "default" | "low-high" | "high-low"
+  premadeOnly?: boolean
+  premadeItemIds?: Set<string>
   onSelectItem: (item: MenuItem) => void
   onAddToMenu?: (item: MenuItem) => void
   addedItemIds?: string[]
 }
 
 const SECTION_EMOJI: Record<string, string> = {
-  "hors-doeuvres": "\u{1F944}", proteins: "\u{1F969}", sides: "\u{1F957}", appetizers: "\u{1F942}", desserts: "\u{1F370}",
+  "hors-doeuvres": "\u{1F944}", proteins: "\u{1F969}", vegan: "\u{1F331}", sides: "\u{1F957}", appetizers: "\u{1F942}", desserts: "\u{1F370}",
 }
 
 const SECTION_COLORS: Record<string, string> = {
   "hors-doeuvres": "border-l-amber-300",
   appetizers: "border-l-rose-300",
   proteins: "border-l-red-400",
+  vegan: "border-l-green-500",
   sides: "border-l-emerald-300",
   desserts: "border-l-purple-300",
 }
 
-export function MenuItemGrid({ items, sectionFilter, searchQuery, onSelectItem, onAddToMenu, addedItemIds = [] }: Props) {
-  const filtered = items.filter((item) => {
+export function MenuItemGrid({ items, sectionFilter, activeSections, searchQuery, sortOrder = "default", premadeOnly = false, premadeItemIds, onSelectItem, onAddToMenu, addedItemIds = [] }: Props) {
+  let filtered = items.filter((item) => {
     if (!item.is_available) return false
-    if (sectionFilter !== "all" && item.section !== sectionFilter) return false
+    // Multi-section filter or single section filter
+    if (sectionFilter === "multi" && activeSections && activeSections.size > 0) {
+      if (!activeSections.has(item.section || "")) return false
+    } else if (sectionFilter !== "all" && sectionFilter !== "multi") {
+      if (item.section !== sectionFilter) return false
+    }
+    // Pre-made filter
+    if (premadeOnly && premadeItemIds) {
+      if (!premadeItemIds.has(item.id)) return false
+    }
+    // Search
     if (searchQuery) {
       const q = searchQuery.toLowerCase()
       return (
@@ -84,6 +101,21 @@ export function MenuItemGrid({ items, sectionFilter, searchQuery, onSelectItem, 
     return true
   })
 
+  // Sort
+  if (sortOrder === "low-high") {
+    filtered = [...filtered].sort((a, b) => {
+      const pa = a.suggested_menu_price ?? a.price ?? 0
+      const pb = b.suggested_menu_price ?? b.price ?? 0
+      return pa - pb
+    })
+  } else if (sortOrder === "high-low") {
+    filtered = [...filtered].sort((a, b) => {
+      const pa = a.suggested_menu_price ?? a.price ?? 0
+      const pb = b.suggested_menu_price ?? b.price ?? 0
+      return pb - pa
+    })
+  }
+
   return (
     <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
       {filtered.map((item) => {
@@ -93,6 +125,7 @@ export function MenuItemGrid({ items, sectionFilter, searchQuery, onSelectItem, 
         const cost = item.cost_per_serving
         const colorClass = SECTION_COLORS[item.section || ""] || "border-l-muted"
         const isAdded = addedItemIds.includes(item.id)
+        const hasPremade = premadeItemIds?.has(item.id)
 
         return (
           <div
@@ -101,7 +134,8 @@ export function MenuItemGrid({ items, sectionFilter, searchQuery, onSelectItem, 
               "relative flex flex-col rounded-lg border-l-4 bg-card transition-all hover:border-l-primary hover:bg-accent/20 text-xs",
               colorClass,
               item.is_signature && "ring-1 ring-gold/20",
-              isAdded && "ring-1 ring-emerald-400/30"
+              isAdded && "ring-1 ring-emerald-400/30",
+              hasPremade && premadeOnly && "ring-2 ring-amber-400/40"
             )}
           >
             {/* Main click area */}
@@ -116,6 +150,11 @@ export function MenuItemGrid({ items, sectionFilter, searchQuery, onSelectItem, 
                 {item.is_signature && (
                   <Badge variant="secondary" className="text-[8px] px-1 py-0 h-4 gap-0.5">
                     <Sparkles className="size-2" />Signature
+                  </Badge>
+                )}
+                {hasPremade && !premadeOnly && (
+                  <Badge variant="outline" className="text-[7px] px-1 py-0 h-3.5 gap-0.5 border-amber-300 text-amber-600">
+                    <Store className="size-2" />Pre-made
                   </Badge>
                 )}
               </div>
@@ -198,7 +237,7 @@ export function MenuItemGrid({ items, sectionFilter, searchQuery, onSelectItem, 
           <Salad className="mx-auto size-8 text-muted-foreground/30 mb-2" />
           <p className="text-sm text-muted-foreground">No items found.</p>
           <p className="text-xs text-muted-foreground/60 mt-1">
-            Try a different filter or search term.
+            {premadeOnly ? "No items with pre-made alternatives match your filters." : "Try a different filter or search term."}
           </p>
         </div>
       )}

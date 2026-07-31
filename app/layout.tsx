@@ -53,36 +53,38 @@ export default function RootLayout({
     <html
       lang="en"
       className={`${playfair.variable} ${montserrat.variable}`}
-      // Solid background color on <html> bypasses CSS variable resolution delay,
-      // preventing the gray-flash-of-unstyled-content (FOUC)
-      style={{ backgroundColor: '#0a0a0f' }}
       suppressHydrationWarning
     >
-      {/* Inline CSS to paint the background instantly — before external CSS loads */}
+      {/* Inline CSS to prevent gray flash — paints bg before external CSS loads */}
       <style
         dangerouslySetInnerHTML={{
           __html: [
-            'html, body {',
-            '  background-color: #0a0a0f !important;',
-            '  margin: 0;',
-            '  padding: 0;',
-            '}',
+            'html { background-color: #0a0a0f; }',
+            'body { background-color: #0a0a0f; margin: 0; padding: 0; }',
             ':root {',
-            '  --background: oklch(0.145 0 0);',
-            '  --foreground: oklch(0.985 0 0);',
-            '}',
-            // Light mode override — only applied when explicitly requested
+                        '  --background: oklch(0.145 0 0);',
+                        '  --foreground: oklch(0.985 0 0);',
+                        '}',
+                        ':root:not(.light) {',
+                                    '  --primary: oklch(0.42 0.075 152) !important;',
+                                    '  --gold: oklch(0.74 0.125 84) !important;',
+                                    '}',
             '.light {',
+            '  background-color: #fafafa;',
+            '  color: oklch(0.15 0 0);',
             '  --background: oklch(0.98 0 0);',
             '  --foreground: oklch(0.15 0 0);',
-            '}',
-            '.light, .light body {',
-            '  background-color: #fafafa !important;',
+            '  --card: oklch(1 0 0);',
+            '  --card-foreground: oklch(0.15 0 0);',
+            '  --muted: oklch(0.96 0 0);',
+            '  --muted-foreground: oklch(0.5 0 0);',
+            '  --border: oklch(0.9 0 0);',
+            '  --input: oklch(0.9 0 0);',
             '}',
           ].join('\n'),
         }}
       />
-      <body className="font-sans antialiased" style={{ backgroundColor: '#0a0a0f' }}>
+      <body className="font-sans antialiased">
         {children}
         {process.env.NODE_ENV === 'production' && <Analytics />}
       </body>

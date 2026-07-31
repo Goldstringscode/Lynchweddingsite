@@ -7,6 +7,7 @@ import {
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
 import { cn } from "@/lib/utils"
+import { SourcingSection } from "./sourcing-section"
 
 export interface MenuItemDetail {
   id: string
@@ -33,21 +34,23 @@ export interface MenuItemDetail {
     fiber?: number
   } | null
   ingredient_list?: {
-    item: string
-    quantity: string
-    costcoPrice?: number
-    wincoPrice?: number
-  }[]
-  ingredient_links?: {
-    costco?: { costPerServing: number; totalFor150: number }
-    winco?: { costPerServing: number; totalFor150: number }
-    blended?: { costPerServing: number; totalFor150: number }
-    savingsPerServing?: number
-    savingsPercent?: number
-    menuPrice?: number
-    profitMargin?: number
-    lastUpdated?: string
-  }
+      item: string
+      quantity: string
+      costcoPrice?: number
+      wincoPrice?: number
+      samsClubPrice?: number
+    }[]
+    ingredient_links?: {
+      costco?: { costPerServing: number; totalFor150: number }
+      winco?: { costPerServing: number; totalFor150: number }
+      sams?: { costPerServing: number; totalFor150: number }
+      blended?: { costPerServing: number; totalFor150: number }
+      savingsPerServing?: number
+      savingsPercent?: number
+      menuPrice?: number
+      profitMargin?: number
+      lastUpdated?: string
+    }
 }
 
 interface Props {
@@ -56,7 +59,7 @@ interface Props {
   onOpenChange: (open: boolean) => void
 }
 
-const DIFFICULTY_ICON = {
+const DIFFICULTY_ICON: Record<string, typeof ChefHat> = {
   easy: ChefHat,
   medium: Clock,
   hard: Sparkles,
@@ -102,224 +105,280 @@ export function ItemDetailModal({ item, open, onOpenChange }: Props) {
 
   const costcoPrice = pricing.costco?.costPerServing
   const wincoPrice = pricing.winco?.costPerServing
+  const samsPrice = pricing.sams?.costPerServing
   const savings = pricing.savingsPerServing
   const savingsPct = pricing.savingsPercent
   const margin = pricing.profitMargin
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <div className="flex items-start justify-between gap-4">
-            <div className="space-y-1">
-              <div className="flex items-center gap-2">
-                <DialogTitle className="font-serif text-xl">{item.name}</DialogTitle>
-                {item.is_signature && (
-                  <Badge variant="secondary" className="text-[10px] px-2 gap-1">
-                    <Sparkles className="size-3" /> Signature
-                  </Badge>
-                )}
-              </div>
-              {item.description && (
-                <DialogDescription className="text-sm leading-relaxed">
-                  {item.description}
-                </DialogDescription>
-              )}
-            </div>
-          </div>
-        </DialogHeader>
-
-        <div className="space-y-5">
-          {/* Quick Stats Row */}
-          <div className="grid grid-cols-4 gap-2">
-            <div className="rounded-xl border bg-card p-3 text-center">
-              <DollarSign className="size-4 mx-auto mb-1 text-emerald-500" />
-              <p className="text-lg font-serif font-medium tabular-nums">${price.toFixed(2)}</p>
-              <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Menu Price</p>
-            </div>
-            {cost > 0 && (
-              <div className="rounded-xl border bg-card p-3 text-center">
-                <Scale className="size-4 mx-auto mb-1 text-muted-foreground" />
-                <p className="text-lg font-serif font-medium tabular-nums">${cost.toFixed(2)}</p>
-                <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Cost/Serving</p>
-              </div>
-            )}
-            {weightG && (
-              <div className="rounded-xl border bg-card p-3 text-center">
-                <ShoppingBag className="size-4 mx-auto mb-1 text-purple-500" />
-                <p className="text-lg font-serif font-medium tabular-nums">{weightG}g</p>
-                <p className="text-[10px] text-muted-foreground uppercase tracking-wider">{weightOz} oz</p>
-              </div>
-            )}
-            {item.difficulty && (
-              <div className="rounded-xl border bg-card p-3 text-center">
-                <DifficultyIcon className="size-4 mx-auto mb-1 text-amber-500" />
-                <p className="text-lg font-serif font-medium capitalize">{item.difficulty}</p>
-                <p className="text-[10px] text-muted-foreground uppercase tracking-wider">
-                  {item.prep_time ? `${item.prep_time} min` : 'Difficulty'}
-                </p>
-              </div>
-            )}
-          </div>
-
-          {/* Costco vs WinCo Pricing */}
-          {costcoPrice && wincoPrice && (
-            <Card className="border-emerald-200 dark:border-emerald-800/30 bg-gradient-to-br from-emerald-50/50 to-transparent dark:from-emerald-950/10">
-              <CardContent className="p-4 space-y-3">
-                <div className="flex items-center gap-2">
-                  <TrendingDown className="size-4 text-emerald-500" />
-                  <h4 className="text-xs font-semibold uppercase tracking-wider text-emerald-700 dark:text-emerald-400">
-                    Costco vs WinCo Pricing
-                  </h4>
-                </div>
-
-                <div className="grid grid-cols-2 gap-3">
-                  {/* Costco */}
-                  <div className="rounded-lg border border-emerald-200 dark:border-emerald-800 bg-white dark:bg-emerald-950/20 p-3">
-                    <div className="flex items-center gap-2 mb-2">
-                      <ShoppingBag className="size-3.5 text-emerald-600" />
-                      <span className="text-xs font-semibold text-emerald-700 dark:text-emerald-400">Costco</span>
-                    </div>
-                    <p className="text-xl font-serif font-medium tabular-nums">${costcoPrice.toFixed(2)}</p>
-                    <p className="text-[10px] text-muted-foreground">per serving</p>
-                    <p className="text-[10px] text-muted-foreground mt-1">
-                      ${pricing.costco?.totalFor150?.toFixed(0)} for 150 guests
-                    </p>
-                  </div>
-
-                  {/* WinCo */}
-                  <div className="rounded-lg border border-amber-200 dark:border-amber-800 bg-white dark:bg-amber-950/20 p-3">
-                    <div className="flex items-center gap-2 mb-2">
-                      <ShoppingBag className="size-3.5 text-amber-600" />
-                      <span className="text-xs font-semibold text-amber-700 dark:text-amber-400">WinCo</span>
-                    </div>
-                    <p className="text-xl font-serif font-medium tabular-nums">${wincoPrice.toFixed(2)}</p>
-                    <p className="text-[10px] text-muted-foreground">per serving</p>
-                    <p className="text-[10px] text-muted-foreground mt-1">
-                      ${pricing.winco?.totalFor150?.toFixed(0)} for 150 guests
-                    </p>
-                  </div>
-                </div>
-
-                {savings != null && savingsPct != null && (
-                  <div className="flex items-center justify-center gap-1.5 rounded-lg bg-emerald-100/50 dark:bg-emerald-900/20 px-3 py-2">
-                    <TrendingDown className="size-3.5 text-emerald-500" />
-                    <span className="text-xs font-medium text-emerald-700 dark:text-emerald-400">
-                      Save ${savings.toFixed(2)} per serving ({savingsPct}%) by choosing Costco
-                    </span>
-                  </div>
-                )}
-
-                {margin != null && (
-                  <div className="flex items-center justify-between text-[11px] text-muted-foreground pt-1 border-t border-border/50">
-                    <span>Menu Price: ${price.toFixed(2)}</span>
-                    <span className={cn("font-medium", margin >= 60 ? "text-emerald-600" : margin >= 40 ? "text-amber-600" : "text-red-600")}>
-                      {margin}% profit margin
-                    </span>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          )}
-
-          {/* Ingredients */}
-          {ingredients.length > 0 && (
-            <div className="space-y-2">
-              <div className="flex items-center gap-2">
-                <Soup className="size-4 text-rose-500" />
-                <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Ingredients & Sourcing</h4>
-              </div>
-              <div className="divide-y divide-border/50 rounded-xl border">
-                {ingredients.map((ing, i) => (
-                  <div key={i} className="flex items-center justify-between px-3 py-2 text-xs">
-                    <div className="flex items-center gap-2 min-w-0 flex-1">
-                      <span className="size-1.5 rounded-full bg-primary/30 shrink-0" />
-                      <span className="truncate font-medium">{ing.item}</span>
-                      <span className="text-muted-foreground shrink-0">{ing.quantity}</span>
-                    </div>
-                    <div className="flex items-center gap-3 shrink-0 ml-3 text-[10px]">
-                      {ing.costcoPrice != null && (
-                        <span className="tabular-nums text-emerald-600 dark:text-emerald-400">
-                          Costco: ${ing.costcoPrice.toFixed(2)}
-                        </span>
-                      )}
-                      {ing.wincoPrice != null && (
-                        <span className="tabular-nums text-amber-600 dark:text-amber-400">
-                          WinCo: ${ing.wincoPrice.toFixed(2)}
-                        </span>
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent className="max-w-[95vw] max-h-[95vh] overflow-y-auto p-4 sm:p-6 lg:p-8">
+                <DialogHeader className="mb-2">
+                  <div className="flex items-start justify-between gap-4 sm:gap-8">
+                    <div className="space-y-2 sm:space-y-3">
+                      <div className="flex items-center gap-3 sm:gap-4">
+                        <DialogTitle className="font-serif text-xl sm:text-2xl lg:text-4xl">{item.name}</DialogTitle>
+                        {item.is_signature && (
+                          <Badge variant="secondary" className="text-xs sm:text-sm px-2 sm:px-3 py-1 gap-1 sm:gap-1.5">
+                            <Sparkles className="size-3 sm:size-4" /> Signature
+                          </Badge>
+                        )}
+                      </div>
+                      {item.description && (
+                        <DialogDescription className="text-sm sm:text-base lg:text-lg leading-relaxed max-w-3xl">
+                          {item.description}
+                        </DialogDescription>
                       )}
                     </div>
                   </div>
-                ))}
-              </div>
-            </div>
-          )}
+                </DialogHeader>
 
-          {/* Nutrition */}
-          {macros.length > 0 && (
-            <div className="space-y-2">
-              <div className="flex items-center gap-2">
-                <Flame className="size-4 text-orange-500" />
-                <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Nutrition Facts</h4>
-              </div>
-              <div className="grid grid-cols-5 gap-1.5">
-                {macros.map((m) => (
-                  <div key={m.label} className={cn("rounded-xl border p-2.5 text-center", m.bg)}>
-                    <m.icon className={cn("size-4 mx-auto mb-1", m.color)} />
-                    <p className="text-sm font-serif font-medium tabular-nums">
-                      {m.value}
-                    </p>
-                    <p className="text-[9px] text-muted-foreground uppercase tracking-wider">{m.unit}</p>
-                    <p className="text-[8px] text-muted-foreground mt-0.5">{m.label}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Allergens + Season + Tags row */}
-          <div className="flex flex-wrap gap-4">
-            {item.allergens && item.allergens.length > 0 && (
-              <div className="space-y-1.5">
-                <div className="flex items-center gap-1.5">
-                  <AlertTriangle className="size-3 text-amber-500" />
-                  <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Allergens</span>
-                </div>
-                <div className="flex flex-wrap gap-1">
-                  {item.allergens.map((a) => {
-                    const AllergenIcon = ALLERGEN_ICONS[a.toLowerCase()] || AlertTriangle
-                    return (
-                      <Badge key={a} variant="outline" className="text-[10px] gap-1 px-2 py-0.5 h-5">
-                        <AllergenIcon className="size-2.5" />
-                        {a}
-                      </Badge>
-                    )
-                  })}
-                </div>
-              </div>
-            )}
-
-            {item.season_tags && item.season_tags.length > 0 && (
-              <div className="space-y-1.5">
-                <div className="flex items-center gap-1.5">
-                  <CalendarIcon className="size-3 text-muted-foreground" />
-                  <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Season</span>
-                </div>
-                <div className="flex flex-wrap gap-1">
-                  {item.season_tags.map((s) => (
-                    <Badge key={s} variant="secondary" className="text-[10px] capitalize gap-1 px-2 py-0.5 h-5">
-                      <span className="size-1.5 rounded-full bg-primary/40" />
-                      {s}
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-            )}
+                <div className="space-y-6 sm:space-y-8">
+                  {/* Quick Stats Row — 2 cols on mobile, 4 on desktop */}
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4">
+                    <div className="rounded-xl border bg-card p-3 sm:p-5 text-center">
+                      <DollarSign className="size-4 sm:size-6 mx-auto mb-1 sm:mb-2 text-emerald-500" />
+                      <p className="text-xl sm:text-2xl lg:text-3xl font-serif font-bold tabular-nums">${price.toFixed(2)}</p>
+                      <p className="text-[10px] sm:text-sm text-muted-foreground uppercase tracking-wider mt-0.5 sm:mt-1">Menu Price</p>
+                    </div>
+                    {cost > 0 && (
+                      <div className="rounded-xl border bg-card p-3 sm:p-5 text-center">
+                        <Scale className="size-4 sm:size-6 mx-auto mb-1 sm:mb-2 text-muted-foreground" />
+                        <p className="text-xl sm:text-2xl lg:text-3xl font-serif font-bold tabular-nums">${cost.toFixed(2)}</p>
+                        <p className="text-[10px] sm:text-sm text-muted-foreground uppercase tracking-wider mt-0.5 sm:mt-1">Cost/Serving</p>
+                      </div>
+                    )}
+                    {weightG && (
+                      <div className="rounded-xl border bg-card p-3 sm:p-5 text-center">
+                        <ShoppingBag className="size-4 sm:size-6 mx-auto mb-1 sm:mb-2 text-purple-500" />
+                        <p className="text-xl sm:text-2xl lg:text-3xl font-serif font-bold tabular-nums">{weightG}g</p>
+                        <p className="text-[10px] sm:text-sm text-muted-foreground uppercase tracking-wider mt-0.5 sm:mt-1">{weightOz} oz</p>
+                      </div>
+                    )}
+                    {item.difficulty && (
+                      <div className="rounded-xl border bg-card p-3 sm:p-5 text-center">
+                        <DifficultyIcon className="size-4 sm:size-6 mx-auto mb-1 sm:mb-2 text-amber-500" />
+                        <p className="text-xl sm:text-2xl lg:text-3xl font-serif font-bold capitalize">{item.difficulty}</p>
+                        <p className="text-[10px] sm:text-sm text-muted-foreground uppercase tracking-wider mt-0.5 sm:mt-1">
+                          {item.prep_time ? `${item.prep_time} min` : 'Difficulty'}
+                        </p>
+                      </div>
+                    )}
           </div>
-        </div>
-      </DialogContent>
-    </Dialog>
-  )
+
+          {/* Main Content: 2-column grid for wide modal, single on mobile */}
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+
+                      {/* LEFT COLUMN: Pricing + Sourcing */}
+                      <div className="space-y-4 sm:space-y-6">
+
+                        {/* Costco vs WinCo vs Sam's Club Pricing — 1 col on mobile, 3 on md+ */}
+                              {costcoPrice && wincoPrice && samsPrice && (
+                                <Card className="border-emerald-200 dark:border-emerald-800/30 bg-gradient-to-br from-emerald-50/50 to-transparent dark:from-emerald-950/10">
+                                  <CardContent className="p-4 sm:p-6 space-y-3 sm:space-y-4">
+                                    <div className="flex items-center gap-2 sm:gap-3">
+                                      <TrendingDown className="size-4 sm:size-6 text-emerald-500" />
+                                      <h4 className="text-xs sm:text-base font-semibold uppercase tracking-wider text-emerald-700 dark:text-emerald-400">
+                                        Store Pricing Comparison
+                                      </h4>
+                                    </div>
+
+                                    {/* 1 col on mobile, 3 on md+ */}
+                                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-3">
+                                      {/* Costco */}
+                                      <div className="rounded-lg border border-emerald-200 dark:border-emerald-800 bg-white dark:bg-emerald-950/20 p-3 sm:p-5">
+                                        <div className="flex items-center gap-1.5 sm:gap-2 mb-1.5 sm:mb-3">
+                                          <ShoppingBag className="size-3 sm:size-5 text-emerald-600" />
+                                          <span className="text-xs sm:text-base font-semibold text-emerald-700 dark:text-emerald-400">Costco</span>
+                                        </div>
+                                        <p className="text-xl sm:text-2xl lg:text-3xl font-serif font-bold tabular-nums text-right sm:text-left">${costcoPrice.toFixed(2)}</p>
+                                        <p className="text-[10px] sm:text-sm text-muted-foreground text-right sm:text-left">per serving</p>
+                                        <p className="text-[10px] sm:text-sm text-muted-foreground mt-1 sm:mt-2 text-right sm:text-left">
+                                          ${pricing.costco?.totalFor150?.toFixed(0)} for 150
+                                        </p>
+                                      </div>
+
+                                      {/* WinCo */}
+                                      <div className="rounded-lg border border-amber-200 dark:border-amber-800 bg-white dark:bg-amber-950/20 p-3 sm:p-5">
+                                        <div className="flex items-center gap-1.5 sm:gap-2 mb-1.5 sm:mb-3">
+                                          <ShoppingBag className="size-3 sm:size-5 text-amber-600" />
+                                          <span className="text-xs sm:text-base font-semibold text-amber-700 dark:text-amber-400">WinCo</span>
+                                        </div>
+                                        <p className="text-xl sm:text-2xl lg:text-3xl font-serif font-bold tabular-nums text-right sm:text-left">${wincoPrice.toFixed(2)}</p>
+                                        <p className="text-[10px] sm:text-sm text-muted-foreground text-right sm:text-left">per serving</p>
+                                        <p className="text-[10px] sm:text-sm text-muted-foreground mt-1 sm:mt-2 text-right sm:text-left">
+                                          ${pricing.winco?.totalFor150?.toFixed(0)} for 150
+                                        </p>
+                                      </div>
+
+                                      {/* Sam's Club */}
+                                      <div className="rounded-lg border border-blue-200 dark:border-blue-800 bg-white dark:bg-blue-950/20 p-3 sm:p-5">
+                                        <div className="flex items-center gap-1.5 sm:gap-2 mb-1.5 sm:mb-3">
+                                          <ShoppingBag className="size-3 sm:size-5 text-blue-600" />
+                                          <span className="text-xs sm:text-base font-semibold text-blue-700 dark:text-blue-400">Sam's Club</span>
+                                        </div>
+                                        <p className="text-xl sm:text-2xl lg:text-3xl font-serif font-bold tabular-nums text-right sm:text-left">${samsPrice.toFixed(2)}</p>
+                                        <p className="text-[10px] sm:text-sm text-muted-foreground text-right sm:text-left">per serving</p>
+                                        <p className="text-[10px] sm:text-sm text-muted-foreground mt-1 sm:mt-2 text-right sm:text-left">
+                                          ${pricing.sams?.totalFor150?.toFixed(0)} for 150
+                                        </p>
+                                      </div>
+                                    </div>
+
+                                    {savings != null && savingsPct != null && (
+                                      <div className="flex items-center justify-center gap-2 rounded-lg bg-emerald-100/50 dark:bg-emerald-900/20 px-3 sm:px-5 py-2 sm:py-3">
+                                        <TrendingDown className="size-3 sm:size-5 text-emerald-500" />
+                                        <span className="text-[10px] sm:text-sm font-medium text-emerald-700 dark:text-emerald-400">
+                                          Save ${savings.toFixed(2)}/serving ({savingsPct}%) at Costco
+                                        </span>
+                                      </div>
+                                    )}
+
+                                    {margin != null && (
+                                      <div className="flex items-center justify-between text-[10px] sm:text-sm text-muted-foreground pt-2 sm:pt-3 border-t border-border/50">
+                                        <span>Menu: ${price.toFixed(2)}</span>
+                                        <span className={cn("font-medium text-xs sm:text-base", margin >= 60 ? "text-emerald-600" : margin >= 40 ? "text-amber-600" : "text-red-600")}>
+                                          {margin}% margin
+                                        </span>
+                                      </div>
+                                    )}
+                         </CardContent>
+                       </Card>
+                     )}
+
+                        {/* Ingredients */}
+                    {ingredients.length > 0 && (
+                      <div className="space-y-2 sm:space-y-3">
+                        <div className="flex items-center gap-2 sm:gap-3">
+                          <Soup className="size-4 sm:size-6 text-rose-500" />
+                          <h4 className="text-xs sm:text-base font-semibold uppercase tracking-wider text-muted-foreground">Ingredients & Sourcing</h4>
+                        </div>
+                        <div className="divide-y divide-border/50 rounded-xl border">
+                          {ingredients.map((ing, i) => (
+                            <div key={i} className="flex flex-col sm:flex-row sm:items-center sm:justify-between px-3 sm:px-5 py-2.5 sm:py-3.5 text-[11px] sm:text-sm">
+                              <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
+                                <span className="size-2 rounded-full bg-primary/30 shrink-0" />
+                                <span className="truncate font-medium text-sm sm:text-base">{ing.item}</span>
+                                <span className="text-muted-foreground shrink-0">{ing.quantity}</span>
+                              </div>
+                              {/* Prices: wrap on mobile, inline on desktop */}
+                              <div className="flex flex-wrap items-center gap-1.5 sm:gap-4 text-[10px] sm:text-sm mt-1 sm:mt-0 ml-4 sm:ml-3">
+                                {ing.costcoPrice != null && (
+                                  <span className="tabular-nums text-emerald-600 dark:text-emerald-400 font-medium">
+                                    C: ${ing.costcoPrice.toFixed(2)}
+                                  </span>
+                                )}
+                                {ing.wincoPrice != null && (
+                                  <span className="tabular-nums text-amber-600 dark:text-amber-400 font-medium">
+                                    W: ${ing.wincoPrice.toFixed(2)}
+                                  </span>
+                                )}
+                                {ing.samsClubPrice != null && (
+                                  <span className="tabular-nums text-blue-600 dark:text-blue-400 font-medium">
+                                    S: ${ing.samsClubPrice.toFixed(2)}
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                                              </div>
+                                            )}
+
+                                                {/* Pre-made Sourcing */}
+                                                <SourcingSection
+                                                  itemSection={item.section}
+                                                  itemCategory={item.category}
+                                                />
+                                              </div>
+
+                                              {/* RIGHT COLUMN: Nutrition + Allergens + Tags */}
+                      <div className="space-y-4 sm:space-y-6">
+
+                        {/* Nutrition — 2 cols on mobile, 3 cols on tablet, 5 on desktop */}
+                    {macros.length > 0 && (
+                      <div className="space-y-2 sm:space-y-3">
+                        <div className="flex items-center gap-2 sm:gap-3">
+                          <Flame className="size-4 sm:size-6 text-orange-500" />
+                          <h4 className="text-xs sm:text-base font-semibold uppercase tracking-wider text-muted-foreground">Nutrition Facts</h4>
+                        </div>
+                        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-1.5 sm:gap-2">
+                          {macros.map((m) => (
+                            <div key={m.label} className={cn("rounded-xl border p-2 sm:p-4 text-center", m.bg)}>
+                              <m.icon className={cn("size-3 sm:size-6 mx-auto mb-0.5 sm:mb-1.5", m.color)} />
+                              <p className="text-sm sm:text-base lg:text-xl font-serif font-bold tabular-nums">
+                                {m.value}
+                              </p>
+                              <p className="text-[9px] sm:text-sm text-muted-foreground uppercase tracking-wider">{m.unit}</p>
+                              <p className="text-[8px] sm:text-[11px] text-muted-foreground mt-0.5 sm:mt-1">{m.label}</p>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                        {/* Allergens + Season + Tags row */}
+                    <div className="flex flex-wrap gap-3 sm:gap-6">
+                      {item.allergens && item.allergens.length > 0 && (
+                        <div className="space-y-1.5 sm:space-y-3">
+                          <div className="flex items-center gap-1.5 sm:gap-2">
+                            <AlertTriangle className="size-3 sm:size-5 text-amber-500" />
+                            <span className="text-[10px] sm:text-sm font-semibold uppercase tracking-wider text-muted-foreground">Allergens</span>
+                          </div>
+                          <div className="flex flex-wrap gap-1.5 sm:gap-2">
+                            {item.allergens.map((a) => {
+                              const AllergenIcon = ALLERGEN_ICONS[a.toLowerCase()] || AlertTriangle
+                              return (
+                                <Badge key={a} variant="outline" className="text-[10px] sm:text-sm gap-1 sm:gap-1.5 px-1.5 sm:px-3 py-0.5 sm:py-1.5 h-5 sm:h-7">
+                                  <AllergenIcon className="size-2.5 sm:size-3.5" />
+                                  {a}
+                                </Badge>
+                              )
+                            })}
+                          </div>
+                        </div>
+                      )}
+
+                      {item.season_tags && item.season_tags.length > 0 && (
+                        <div className="space-y-1.5 sm:space-y-3">
+                          <div className="flex items-center gap-1.5 sm:gap-2">
+                            <CalendarIcon className="size-3 sm:size-5 text-muted-foreground" />
+                            <span className="text-[10px] sm:text-sm font-semibold uppercase tracking-wider text-muted-foreground">Season</span>
+                          </div>
+                          <div className="flex flex-wrap gap-1.5 sm:gap-2">
+                            {item.season_tags.map((s) => (
+                              <Badge key={s} variant="secondary" className="text-[10px] sm:text-sm capitalize gap-1 sm:gap-1.5 px-1.5 sm:px-3 py-0.5 sm:py-1.5 h-5 sm:h-7">
+                                <span className="size-1.5 sm:size-2 rounded-full bg-primary/40" />
+                                {s}
+                              </Badge>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                        {/* Pairings */}
+                        {item.suggested_pairings && item.suggested_pairings.length > 0 && (
+                          <div className="space-y-1.5 sm:space-y-3">
+                            <div className="flex items-center gap-1.5 sm:gap-2">
+                              <Sparkles className="size-3 sm:size-5 text-gold" />
+                              <span className="text-[10px] sm:text-sm font-semibold uppercase tracking-wider text-muted-foreground">Pairings</span>
+                            </div>
+                            <div className="flex flex-wrap gap-1.5 sm:gap-2">
+                              {item.suggested_pairings.map((p, i) => (
+                                <Badge key={i} variant="secondary" className="text-[10px] sm:text-sm gap-1 sm:gap-1.5 px-1.5 sm:px-3 py-0.5 sm:py-1.5 h-5 sm:h-7">
+                                  {p}
+                                </Badge>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </DialogContent>
+              </Dialog>
+            )
 }
 
 function CalendarIcon(props: any) {

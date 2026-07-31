@@ -5,7 +5,8 @@ import { toPng } from "html-to-image"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Download, Eye, Loader2, UtensilsCrossed } from "lucide-react"
+import { Download, Eye, Loader2, UtensilsCrossed, FileSpreadsheet, ChevronDown, ChevronRight } from "lucide-react"
+import { CatererSheet } from "./caterer-sheet"
 
 interface MenuItem {
   id: string; category: string; name: string; description: string; price: number | null
@@ -21,8 +22,18 @@ const CATEGORY_EMOJI: Record<string, string> = {
 export function PreviewExportTab() {
   const [items, setItems] = useState<MenuItem[]>([]); const [loading, setLoading] = useState(true)
   const [exporting, setExporting] = useState(false); const previewRef = useRef<HTMLDivElement>(null)
+  const [draftMenus, setDraftMenus] = useState<any[]>([]); const [showCatererSheet, setShowCatererSheet] = useState(false)
+  const [catererLoading, setCatererLoading] = useState(true)
 
-  useEffect(() => { fetch("/api/menu").then(r => r.json()).then(d => { setItems(d || []); setLoading(false) }) }, [])
+  useEffect(() => {
+    fetch("/api/menu").then(r => r.json()).then(d => { setItems(d || []); setLoading(false) })
+    fetch("/api/menu/drafts").then(r => r.json()).then(d => {
+      setDraftMenus(Array.isArray(d) ? d : [])
+      setCatererLoading(false)
+    }).catch(() => setCatererLoading(false))
+  }, [])
+
+  const firstDraft = draftMenus?.[0]
 
   const handleExportPNG = async () => {
     if (!previewRef.current) return; setExporting(true)
@@ -94,6 +105,31 @@ export function PreviewExportTab() {
         <div className="h-1.5 bg-gradient-to-r from-gold/60 via-gold to-gold/60" />
       </div>
       <p className="text-center text-xs text-muted-foreground">Shows only items marked as available.</p>
+
+      {/* Caterer's Production Sheet */}
+      {!catererLoading && firstDraft && firstDraft.courses?.length > 0 && (
+        <div className="pt-4">
+          <button
+            onClick={() => setShowCatererSheet(!showCatererSheet)}
+            className="flex items-center gap-2 w-full text-left px-4 py-3 rounded-lg border bg-card hover:bg-accent/20 transition-colors"
+          >
+            <FileSpreadsheet className="size-4 text-amber-600" />
+            <span className="text-sm font-medium">Caterer's Production Sheet</span>
+            <span className="text-xs text-muted-foreground">— Itemized costs, weights & shopping list for {firstDraft.name}</span>
+            {showCatererSheet ? <ChevronDown className="size-4 ml-auto" /> : <ChevronRight className="size-4 ml-auto" />}
+          </button>
+          {showCatererSheet && (
+            <div className="mt-4">
+              <CatererSheet
+                menuName={firstDraft.name}
+                courses={firstDraft.courses || []}
+                catalogItems={items as any}
+                defaultGuestCount={firstDraft.guest_count || 150}
+              />
+            </div>
+          )}
+        </div>
+      )}
     </div>
   )
 }

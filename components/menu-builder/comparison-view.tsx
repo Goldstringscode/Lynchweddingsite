@@ -12,12 +12,13 @@ interface Props {
   onRemoveItem: (menuId: string, courseNumber: number) => void
 }
 
-const COURSE_ORDER = ["hors-doeuvres", "appetizer", "protein", "side", "dessert"]
+const COURSE_ORDER = ["hors-doeuvres", "appetizer", "protein", "vegan", "side", "dessert"]
 
 const COURSE_LABELS: Record<string, string> = {
   "hors-doeuvres": "Hors d'Oeuvres",
   appetizer: "Appetizers",
   protein: "Proteins / Entrées",
+  vegan: "Vegan Entrées",
   side: "Sides",
   dessert: "Desserts",
 }

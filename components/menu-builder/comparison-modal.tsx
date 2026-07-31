@@ -53,10 +53,10 @@ interface Props {
   draftIds: string[]
 }
 
-const COURSE_TYPE_ORDER = ["hors-doeuvres", "appetizer", "protein", "side", "dessert"]
+const COURSE_TYPE_ORDER = ["hors-doeuvres", "appetizer", "protein", "vegan", "side", "dessert"]
 const COURSE_TYPE_LABELS: Record<string, string> = {
   "hors-doeuvres": "Hors d'Oeuvres",
-  appetizer: "Appetizer", protein: "Protein / Entrée", side: "Side", dessert: "Dessert",
+  appetizer: "Appetizer", protein: "Protein / Entrée", vegan: "Vegan Entrée", side: "Side", dessert: "Dessert",
 }
 
 export function ComparisonModal({ open, onOpenChange, draftIds }: Props) {

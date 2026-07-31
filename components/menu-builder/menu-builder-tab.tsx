@@ -14,17 +14,26 @@ import { MenuBar, type ActiveMenu } from "./menu-bar"
 import { MenuPickerModal } from "./menu-picker-modal"
 import { MenuItemList } from "./menu-item-list"
 import { ComparisonView } from "./comparison-view"
+import { CatererSheet } from "@/components/dashboard/caterer-sheet"
+import { ChevronDown, ChevronRight, FileSpreadsheet, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react"
 
 export function MenuBuilderTab() {
   const [items, setItems] = useState<MenuItem[]>([])
   const [loading, setLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState("")
   const [sectionFilter, setSectionFilter] = useState<string>("all")
+  const [activeSections, setActiveSections] = useState<Set<string>>(new Set())
+  const [sortOrder, setSortOrder] = useState<"default" | "low-high" | "high-low">("default")
+  const [premadeOnly, setPremadeOnly] = useState(false)
+  const [premadeItemIds, setPremadeItemIds] = useState<Set<string>>(new Set())
   const [selectedItem, setSelectedItem] = useState<MenuItem | null>(null)
   const [detailOpen, setDetailOpen] = useState(false)
   const [compareModalOpen, setCompareModalOpen] = useState(false)
   const [showSettings, setShowSettings] = useState(false)
   const [selectedSide, setSelectedSide] = useState<"one" | "either" | "both">("both")
+
+  // Caterer sheet toggle
+  const [showCatererSheet, setShowCatererSheet] = useState(false)
 
   // Multi-menu state
   const [activeMenus, setActiveMenus] = useState<ActiveMenu[]>([])
@@ -89,21 +98,56 @@ export function MenuBuilderTab() {
   }, [])
 
   useEffect(() => {
-    fetchItems()
-    loadMenus()
-  }, [fetchItems, loadMenus])
+      fetchItems()
+      loadMenus()
+      // Load pre-made sourcing data to get sections with alternatives
+      fetch("/data/premade-sourcing.json")
+        .then(r => r.json())
+        .then(data => {
+          if (data?.categories) {
+            // Sections that have pre-made alternatives
+            const catsWithData = new Set(Object.keys(data.categories))
+            // Map menu sections to pre-made categories
+            const sectionMap: Record<string, string[]> = {
+              "hors-doeuvres": ["appetizers"],
+              "appetizers": ["appetizers"],
+              "proteins": ["proteins"],
+              "vegan": ["proteins", "sides"],
+              "sides": ["sides"],
+              "desserts": ["desserts"],
+            }
+            // Compute which items have pre-made alternatives
+            const ids = new Set<string>()
+            // Need to wait for items to load, so use a small timeout
+            const check = setInterval(() => {
+              setItems(prev => {
+                if (prev.length === 0) return prev
+                clearInterval(check)
+                for (const item of prev) {
+                  const matching = sectionMap[item.section || ""] || []
+                  if (matching.some(c => catsWithData.has(c))) ids.add(item.id)
+                }
+                setPremadeItemIds(new Set(ids))
+                return prev
+              })
+            }, 100)
+          }
+        })
+        .catch(() => {})
+    }, [fetchItems, loadMenus])
 
-  const sections = ["hors-doeuvres", "appetizers", "proteins", "sides", "desserts"].filter(
-    (s) => items.some((i) => i.section === s)
-  )
+  const sections = ["hors-doeuvres", "appetizers", "proteins", "vegan", "sides", "desserts"].filter(
+      (s) => items.some((i) => i.section === s)
+    )
 
-  const SECTION_LABELS: Record<string, string> = {
-    "hors-doeuvres": "Hors d'Oeuvres",
-    appetizers: "Appetizers",
-    proteins: "Proteins",
-    sides: "Sides",
-    desserts: "Desserts",
-  }
+    const SECTION_LABELS: Record<string, string> = {
+      "hors-doeuvres": "Hors d'Oeuvres",
+      appetizers: "Appetizers",
+      proteins: "Proteins",
+      vegan: "Vegan",
+      sides: "Sides",
+      desserts: "Desserts",
+    }
 
   // --- Item handlers ---
 
@@ -129,7 +173,7 @@ export function MenuBuilderTab() {
         if (menu.courses.some((c) => c.item_id === item.id)) return menu // already added
         const sectionMap: Record<string, string> = {
           "hors-doeuvres": "hors-doeuvres",
-          appetizers: "appetizer", proteins: "protein", sides: "side", desserts: "dessert",
+          appetizers: "appetizer", proteins: "protein", vegan: "vegan", sides: "side", desserts: "dessert",
         }
         return {
           ...menu,
@@ -155,7 +199,7 @@ export function MenuBuilderTab() {
         if (menu.courses.some((c) => c.item_id === item.id)) return menu
         const sectionMap: Record<string, string> = {
           "hors-doeuvres": "hors-doeuvres",
-          appetizers: "appetizer", proteins: "protein", sides: "side", desserts: "dessert",
+          appetizers: "appetizer", proteins: "protein", vegan: "vegan", sides: "side", desserts: "dessert",
         }
         return {
           ...menu,
@@ -406,54 +450,98 @@ export function MenuBuilderTab() {
               )}
 
               {/* Catalog Grid — always shows all items from database */}
-              <div>
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="relative flex-1 max-w-xs">
-                    <Filter className="absolute left-2.5 top-1/2 -translate-y-1/2 size-3.5 text-muted-foreground" />
-                    <Input
-                      placeholder="Search catalog..."
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      className="pl-8 h-9 text-sm"
-                    />
-                  </div>
-                  <div className="flex gap-1 flex-wrap">
-                    <button
-                      onClick={() => setSectionFilter("all")}
-                      className={cn(
-                        "px-2.5 py-1.5 text-xs rounded-md font-medium transition-colors",
-                        sectionFilter === "all"
-                          ? "bg-primary text-primary-foreground"
-                          : "bg-muted text-muted-foreground hover:bg-accent"
-                      )}
-                    >
-                      All
-                    </button>
-                    {sections.map((s) => (
-                      <button
-                        key={s}
-                        onClick={() => setSectionFilter(s)}
-                        className={cn(
-                                                    "px-2.5 py-1.5 text-xs rounded-md font-medium capitalize transition-colors",
-                                                    sectionFilter === s
-                                                      ? "bg-primary text-primary-foreground"
-                                                      : "bg-muted text-muted-foreground hover:bg-accent"
-                                                  )}
-                                                >
-                                                  {SECTION_LABELS[s] || s}
-                      </button>
-                    ))}
-                  </div>
-                </div>
+                            <div>
+                              <div className="flex items-center gap-3 mb-4 flex-wrap">
+                                <div className="relative flex-1 max-w-xs">
+                                  <Filter className="absolute left-2.5 top-1/2 -translate-y-1/2 size-3.5 text-muted-foreground" />
+                                  <Input
+                                    placeholder="Search catalog..."
+                                    value={searchQuery}
+                                    onChange={(e) => setSearchQuery(e.target.value)}
+                                    className="pl-8 h-9 text-sm"
+                                  />
+                                </div>
+                                <div className="flex gap-1 flex-wrap">
+                                  <button
+                                    onClick={() => setActiveSections(new Set())}
+                                    className={cn(
+                                      "px-2.5 py-1.5 text-xs rounded-md font-medium transition-colors",
+                                      activeSections.size === 0
+                                        ? "bg-primary text-primary-foreground"
+                                        : "bg-muted text-muted-foreground hover:bg-accent"
+                                    )}
+                                  >
+                                    All
+                                  </button>
+                                  {sections.map((s) => (
+                                    <button
+                                      key={s}
+                                      onClick={() => {
+                                        const next = new Set(activeSections)
+                                        if (next.has(s)) next.delete(s)
+                                        else next.add(s)
+                                        setActiveSections(next)
+                                      }}
+                                      className={cn(
+                                        "px-2.5 py-1.5 text-xs rounded-md font-medium capitalize transition-colors",
+                                        activeSections.has(s)
+                                          ? "bg-primary text-primary-foreground"
+                                          : "bg-muted text-muted-foreground hover:bg-accent"
+                                      )}
+                                    >
+                                      {SECTION_LABELS[s] || s}
+                                    </button>
+                                  ))}
+                                  {/* Pre-made filter toggle */}
+                                  {premadeItemIds.size > 0 && (
+                                    <button
+                                      onClick={() => setPremadeOnly(!premadeOnly)}
+                                      className={cn(
+                                        "px-2.5 py-1.5 text-xs rounded-md font-medium capitalize transition-colors",
+                                        premadeOnly
+                                          ? "bg-amber-600 text-white"
+                                          : "bg-muted text-muted-foreground hover:bg-accent"
+                                      )}
+                                    >
+                                      🏪 Pre-made
+                                    </button>
+                                  )}
+                                </div>
+                                {/* Sort buttons */}
+                                <div className="flex rounded-lg border overflow-hidden shrink-0">
+                                  <button
+                                    onClick={() => setSortOrder(sortOrder === "low-high" ? "default" : "low-high")}
+                                    className={cn(
+                                      "px-2 py-1.5 text-[10px] font-medium transition-colors flex items-center gap-1",
+                                      sortOrder === "low-high" ? "bg-primary text-primary-foreground" : "bg-background text-muted-foreground hover:bg-accent"
+                                    )}
+                                  >
+                                    <ArrowUp className="size-3" /> Price
+                                  </button>
+                                  <button
+                                    onClick={() => setSortOrder(sortOrder === "high-low" ? "default" : "high-low")}
+                                    className={cn(
+                                      "px-2 py-1.5 text-[10px] font-medium transition-colors flex items-center gap-1 border-l",
+                                      sortOrder === "high-low" ? "bg-primary text-primary-foreground" : "bg-background text-muted-foreground hover:bg-accent"
+                                    )}
+                                  >
+                                    <ArrowDown className="size-3" /> Price
+                                  </button>
+                                </div>
+                              </div>
 
-                <MenuItemGrid
-                  items={items}
-                  sectionFilter={sectionFilter}
-                  searchQuery={searchQuery}
-                  onSelectItem={handleViewItem}
-                  onAddToMenu={handleAddToMenu}
-                  addedItemIds={activeMenu?.courses.map((c) => c.item_id) || []}
-                />
+                              <MenuItemGrid
+                                items={items}
+                                sectionFilter={activeSections.size > 0 ? "multi" : "all"}
+                                activeSections={activeSections}
+                                searchQuery={searchQuery}
+                                sortOrder={sortOrder}
+                                premadeOnly={premadeOnly}
+                                premadeItemIds={premadeItemIds}
+                                onSelectItem={handleViewItem}
+                                onAddToMenu={handleAddToMenu}
+                                addedItemIds={activeMenu?.courses.map((c) => c.item_id) || []}
+                              />
               </div>
             </div>
           )}
@@ -503,11 +591,36 @@ export function MenuBuilderTab() {
       />
 
       {/* Comparison Modal */}
-      <ComparisonModal
-        open={compareModalOpen}
-        onOpenChange={setCompareModalOpen}
-        draftIds={activeMenus.map((m) => m.id)}
-      />
+            <ComparisonModal
+              open={compareModalOpen}
+              onOpenChange={setCompareModalOpen}
+              draftIds={activeMenus.map((m) => m.id)}
+            />
+
+            {/* Caterer Sheet */}
+            {activeMenu && activeMenu.courses.length > 0 && (
+              <div>
+                <button
+                  onClick={() => setShowCatererSheet(!showCatererSheet)}
+                  className="flex items-center gap-2 w-full text-left px-4 py-3 rounded-lg border bg-card hover:bg-accent/20 transition-colors"
+                >
+                  <FileSpreadsheet className="size-4 text-amber-600" />
+                  <span className="text-sm font-medium">Caterer's Production Sheet</span>
+                  <span className="text-xs text-muted-foreground">— Itemized costs, weights & shopping list for {activeMenu.name}</span>
+                  {showCatererSheet ? <ChevronDown className="size-4 ml-auto" /> : <ChevronRight className="size-4 ml-auto" />}
+                </button>
+                {showCatererSheet && (
+                  <div className="mt-4">
+                    <CatererSheet
+                      menuName={activeMenu.name}
+                      courses={activeMenu.courses}
+                      catalogItems={items}
+                      defaultGuestCount={activeMenu.guestCount}
+                    />
+                  </div>
+                )}
+              </div>
+            )}
     </div>
   )
 }
