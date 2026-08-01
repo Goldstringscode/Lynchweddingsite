@@ -206,28 +206,28 @@ export function MenuItemGrid({ items, sectionFilter, activeSections, searchQuery
             </button>
 
             {/* Add to Menu button */}
-                        {onAddToMenu && (
-                          <div className="px-3 pb-2 pt-0 flex items-center gap-1.5">
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation()
-                                onAddToMenu(item)
-                              }}
-                              className={cn(
-                                "w-full flex items-center justify-center gap-1.5 rounded-md py-1.5 text-[10px] font-medium transition-all",
-                                isAdded
-                                  ? "bg-red-50 text-red-600 border border-red-200 dark:bg-red-950/20 dark:text-red-400 dark:border-red-800"
-                                  : "bg-primary/5 text-primary border border-primary/20 hover:bg-primary/10 hover:border-primary/40"
-                              )}
-                            >
-                              {isAdded ? (
-                                <><X className="size-3" /> Remove</>
-                              ) : (
-                                <><Plus className="size-3" /> Add</>
-                              )}
-                            </button>
-                          </div>
-                        )}
+            {onAddToMenu && (
+              <div className="px-3 pb-2 pt-0">
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    onAddToMenu(item)
+                  }}
+                  className={cn(
+                    "w-full flex items-center justify-center gap-1.5 rounded-md py-1.5 text-[10px] font-medium transition-all",
+                    isAdded
+                                          ? "bg-red-50 text-red-600 border border-red-200 dark:bg-red-950/20 dark:text-red-400 dark:border-red-800"
+                                          : "bg-primary/5 text-primary border border-primary/20 hover:bg-primary/10 hover:border-primary/40"
+                  )}
+                >
+                  {isAdded ? (
+                                      <><X className="size-3" /> Remove from Menu</>
+                                    ) : (
+                                      <><Plus className="size-3" /> Add to Menu</>
+                  )}
+                </button>
+              </div>
+            )}
           </div>
         )
       })}

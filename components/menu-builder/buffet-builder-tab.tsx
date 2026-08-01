@@ -46,7 +46,7 @@ interface BuffetStation {
   id: string
   name: string
   type: string
-  items: { item: BuffetItem; portion?: string; servingGuests?: number }[]
+  items: { item: BuffetItem; portion?: string }[]
   notes?: string
 }
 
@@ -456,24 +456,24 @@ export function BuffetBuilderTab() {
 
   // Add item to buffet
   const addToBuffet = (item: BuffetItem) => {
-      if (!activeMenu) return
-      const stationType = item.station_type || "self-serve"
-      const existingStation = activeMenu.stations.find(s => s.type === stationType)
-      const gc = activeMenu.guest_count || 150
-
-      if (existingStation) {
-        existingStation.items.push({ item, servingGuests: gc })
-      } else {
-        activeMenu.stations.push({
-          id: crypto.randomUUID(),
-          name: stationType === "self-serve" ? `${item.category} Display` : `${stationType.charAt(0).toUpperCase() + stationType.slice(1).replace("-", " ")} Station`,
-          type: stationType,
-          items: [{ item, servingGuests: gc }],
-        })
-      }
-      recalculateMenu(activeMenu)
-      setBuffetMenus([...buffetMenus])
+    if (!activeMenu) return
+    // Add to first appropriate station or create one
+    const stationType = item.station_type || "self-serve"
+    const existingStation = activeMenu.stations.find(s => s.type === stationType)
+    
+    if (existingStation) {
+      existingStation.items.push({ item })
+    } else {
+      activeMenu.stations.push({
+        id: crypto.randomUUID(),
+        name: stationType === "self-serve" ? `${item.category} Display` : `${stationType.charAt(0).toUpperCase() + stationType.slice(1).replace("-", " ")} Station`,
+        type: stationType,
+        items: [{ item }],
+      })
     }
+    recalculateMenu(activeMenu)
+    setBuffetMenus([...buffetMenus])
+  }
 
   const removeFromStation = (stationId: string, itemId: string) => {
     if (!activeMenu) return
@@ -491,11 +491,7 @@ export function BuffetBuilderTab() {
     let totalPerPerson = 0
     for (const station of menu.stations) {
       for (const si of station.items) {
-        const gc = menu.guest_count || 150
-        const sg = si.servingGuests ?? gc
-        const portionMultiplier = si.portion === "large" ? 1.5 : si.portion === "small" ? 0.67 : 1
-        const itemCost = (si.item.price_per_person || 0) * portionMultiplier * (sg / gc)
-        totalPerPerson += itemCost
+        totalPerPerson += si.item.price_per_person || 0
       }
     }
     menu.total_cost_per_person = totalPerPerson
@@ -683,64 +679,17 @@ export function BuffetBuilderTab() {
                       </div>
                     </div>
                     <div className="divide-y divide-border/20">
-                      {station.items.map((si) => {
-                        const gc = activeMenu?.guest_count || 150
-                        const sg = si.servingGuests ?? gc
-                        const portionMultiplier = si.portion === "large" ? 1.5 : si.portion === "small" ? 0.67 : 1
-                        const effectiveCost = (si.item.price_per_person || 0) * portionMultiplier * (sg / gc)
-                        return (
-                        <div key={si.item.id + (si as any)._key || ''} className="flex flex-col sm:flex-row sm:items-center justify-between px-4 sm:px-5 py-2.5 hover:bg-muted/10 transition-colors gap-2">
-                          <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                      {station.items.map((si) => (
+                        <div key={si.item.id} className="flex items-center justify-between px-4 sm:px-5 py-2.5 hover:bg-muted/10 transition-colors">
+                          <div className="flex items-center gap-2.5 min-w-0">
                             <span className="size-1.5 rounded-full bg-primary/40 shrink-0" />
                             <span className="text-sm truncate">{si.item.name}</span>
                             {si.item.dietary_labels?.map((d) => (
                               <span key={d} className={cn("text-[8px] font-semibold px-1 py-px rounded border", DIET_COLORS[d]?.split(" ").slice(0, 2).join(" ") || "")}>{d}</span>
                             ))}
                           </div>
-                          <div className="flex items-center gap-2 shrink-0 flex-wrap">
-                            {/* Portion size */}
-                            <select
-                              value={si.portion || "regular"}
-                              onChange={(e) => {
-                                const menu = activeMenu
-                                if (!menu) return
-                                const st = menu.stations.find(s => s.id === station.id)
-                                if (!st) return
-                                const idx = st.items.findIndex(i => i.item.id === si.item.id)
-                                if (idx === -1) return
-                                st.items[idx] = { ...st.items[idx], portion: e.target.value as any }
-                                recalculateMenu(menu)
-                                setBuffetMenus([...buffetMenus])
-                              }}
-                              className="h-7 rounded-md border border-border/50 bg-background px-1.5 text-[10px] tabular-nums"
-                            >
-                              <option value="small">Small</option>
-                              <option value="regular">Regular</option>
-                              <option value="large">Large</option>
-                            </select>
-                            {/* Serving guests */}
-                            <div className="flex items-center gap-1">
-                              <Input
-                                type="number"
-                                min={1}
-                                max={gc}
-                                value={sg}
-                                onChange={(e) => {
-                                  const menu = activeMenu
-                                  if (!menu) return
-                                  const st = menu.stations.find(s => s.id === station.id)
-                                  if (!st) return
-                                  const idx = st.items.findIndex(i => i.item.id === si.item.id)
-                                  if (idx === -1) return
-                                  st.items[idx] = { ...st.items[idx], servingGuests: parseInt(e.target.value) || 1 }
-                                  recalculateMenu(menu)
-                                  setBuffetMenus([...buffetMenus])
-                                }}
-                                className="w-14 h-7 text-[10px] text-center tabular-nums rounded-md"
-                              />
-                              <span className="text-[9px] text-muted-foreground whitespace-nowrap">of {gc} guests</span>
-                            </div>
-                            <span className="text-[10px] tabular-nums text-muted-foreground font-medium">${effectiveCost.toFixed(2)}/pp</span>
+                          <div className="flex items-center gap-3 shrink-0">
+                            <span className="text-xs tabular-nums text-muted-foreground">${(si.item.price_per_person || 0).toFixed(2)}/ea</span>
                             <button
                               onClick={() => removeFromStation(station.id, si.item.id)}
                               className="size-6 rounded-full flex items-center justify-center text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
