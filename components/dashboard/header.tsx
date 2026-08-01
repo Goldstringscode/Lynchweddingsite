@@ -4,16 +4,7 @@ import { useRouter } from "next/navigation"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { Menu, Search, Bell, User, LogOut, Settings2, CalendarCheck, PartyPopper, MessageSquare, X } from "lucide-react"
+import { Menu, Search, Bell, PartyPopper, X } from "lucide-react"
 import { useState, useRef, useEffect } from "react"
 
 interface HeaderProps {
@@ -121,51 +112,27 @@ export function Header({ title, subtitle, onOpenMobile, onNavigate }: HeaderProp
           )}
         </div>
 
-        <DropdownMenu>
-          <DropdownMenuTrigger
-            render={
-              <Button
-                variant="ghost"
-                className="h-10 gap-2 px-1.5 sm:pr-2.5"
-                aria-label="Account menu"
-              />
-            }
-          >
-            <Avatar className="size-8">
-              <AvatarImage src="/admin-avatar.png" alt="" />
-              <AvatarFallback className="bg-primary text-primary-foreground">
-                EA
-              </AvatarFallback>
-            </Avatar>
-            <span className="hidden text-left leading-tight sm:block">
-              <span className="block text-sm font-medium text-foreground">
-                Elena Ashford
-              </span>
-              <span className="block text-xs text-muted-foreground">
-                Lead Planner
-              </span>
+        <Button
+          variant="ghost"
+          className="h-10 gap-2 px-1.5 sm:pr-2.5"
+          aria-label="Account menu"
+          onClick={() => { onNavigate?.("settings"); router.push("/admin") }}
+        >
+          <Avatar className="size-8">
+            <AvatarImage src="/admin-avatar.png" alt="" />
+            <AvatarFallback className="bg-primary text-primary-foreground">
+              EA
+            </AvatarFallback>
+          </Avatar>
+          <span className="hidden text-left leading-tight sm:block">
+            <span className="block text-sm font-medium text-foreground">
+              Elena Ashford
             </span>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-52">
-            <DropdownMenuLabel>My Account</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuGroup>
-              <DropdownMenuItem onClick={() => { onNavigate?.("settings"); router.push("/admin") }}>
-                <User />
-                Profile
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => { onNavigate?.("settings"); router.push("/admin") }}>
-                <Settings2 />
-                Preferences
-              </DropdownMenuItem>
-            </DropdownMenuGroup>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem variant="destructive" onClick={handleSignOut}>
-              <LogOut />
-              Sign out
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+            <span className="block text-xs text-muted-foreground">
+              Lead Planner
+            </span>
+          </span>
+        </Button>
       </div>
     </header>
   )
