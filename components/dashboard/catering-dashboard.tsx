@@ -1,15 +1,20 @@
 "use client"
 
-import { ClipboardList, Users, Pencil, Eye, ChefHat } from "lucide-react"
+import { useState } from "react"
+import { ClipboardList, Users, Pencil, Eye, ChefHat, UtensilsCrossed } from "lucide-react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { AnalyticsTab } from "./analytics-tab"
 import { EditMenuTab } from "./edit-menu-tab"
 import { PreviewExportTab } from "./preview-export-tab"
 import { MenuBuilderTab } from "../menu-builder/menu-builder-tab"
+import { BuffetBuilderTab } from "../menu-builder/buffet-builder-tab"
 import { CateringTab } from "./catering-tab"
 import { ErrorBoundary } from "../error-boundary"
+import { cn } from "@/lib/utils"
 
 export function CateringDashboard() {
+  const [builderMode, setBuilderMode] = useState<"plated" | "buffet">("plated")
+
   return (
     <div className="space-y-6">
       <Tabs defaultValue="builder" className="space-y-6">
@@ -38,7 +43,37 @@ export function CateringDashboard() {
 
         <TabsContent value="builder">
           <ErrorBoundary>
-            <MenuBuilderTab />
+            {/* Plated / Buffet Toggle */}
+            <div className="flex items-center gap-2 mb-4">
+              <div className="flex items-center gap-1.5 bg-muted/50 rounded-xl p-1 border border-border/30">
+                <button
+                  onClick={() => setBuilderMode("plated")}
+                  className={cn(
+                    "flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-medium transition-all duration-200",
+                    builderMode === "plated"
+                      ? "bg-white dark:bg-card shadow-sm text-foreground"
+                      : "text-muted-foreground hover:text-foreground"
+                  )}
+                >
+                  <UtensilsCrossed className="size-3.5" />
+                  Plated Items
+                </button>
+                <button
+                  onClick={() => setBuilderMode("buffet")}
+                  className={cn(
+                    "flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-medium transition-all duration-200",
+                    builderMode === "buffet"
+                      ? "bg-white dark:bg-card shadow-sm text-foreground"
+                      : "text-muted-foreground hover:text-foreground"
+                  )}
+                >
+                  <ChefHat className="size-3.5" />
+                  Buffet Items
+                </button>
+              </div>
+            </div>
+
+            {builderMode === "plated" ? <MenuBuilderTab /> : <BuffetBuilderTab />}
           </ErrorBoundary>
         </TabsContent>
 
