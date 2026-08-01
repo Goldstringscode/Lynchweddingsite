@@ -3,6 +3,8 @@
 import { cn } from "@/lib/utils"
 import { navItems, type PageKey } from "./nav"
 import { Gem, X } from "lucide-react"
+import { wedding } from "@/lib/wedding-data"
+import { useEffect, useState } from "react"
 
 interface SidebarProps {
   current: PageKey
@@ -17,6 +19,19 @@ export function Sidebar({
   mobileOpen,
   onCloseMobile,
 }: SidebarProps) {
+  const [checklistProgress, setChecklistProgress] = useState(0)
+
+  useEffect(() => {
+    fetch("/api/checklist")
+      .then((r) => r.json())
+      .then((data) => {
+        const items = Array.isArray(data) ? data : []
+        const done = items.filter((i: any) => i.done).length
+        const pct = items.length > 0 ? Math.round((done / items.length) * 100) : 0
+        setChecklistProgress(pct)
+      })
+      .catch(() => {})
+  }, [])
   return (
     <>
       {/* Mobile overlay */}
@@ -102,13 +117,13 @@ export function Sidebar({
               Nikkita &amp; Justin
             </p>
             <p className="mt-0.5 text-xs text-sidebar-foreground/50">
-              September 14, 2026
+              {wedding.date}
             </p>
             <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-sidebar-border">
-              <div className="h-full w-3/4 rounded-full bg-gold" />
+              <div className="h-full rounded-full bg-gold" style={{ width: `${checklistProgress}%` }} />
             </div>
             <p className="mt-2 text-[11px] text-sidebar-foreground/50">
-              75% planning complete
+              {checklistProgress}% planning complete
             </p>
           </div>
         </div>

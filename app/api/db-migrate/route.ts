@@ -1,11 +1,22 @@
 import { NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/supabase-admin"
 
+export const dynamic = "force-dynamic"
+
 export async function GET() {
   const sql = `
-    ALTER TABLE menu_items ADD COLUMN IF NOT EXISTS pricing_breakdown JSONB DEFAULT '{}'::jsonb;
-    ALTER TABLE menu_items ADD COLUMN IF NOT EXISTS ingredient_details JSONB DEFAULT '[]'::jsonb;
-  `;
+      CREATE TABLE IF NOT EXISTS wedding_settings (
+        id INTEGER PRIMARY KEY DEFAULT 1,
+        email_notifications BOOLEAN DEFAULT true,
+        wedding_date TEXT DEFAULT '2026-09-26',
+        updated_at TIMESTAMPTZ DEFAULT now()
+      );
+      INSERT INTO wedding_settings (id, email_notifications, wedding_date)
+      VALUES (1, true, '2026-09-26')
+      ON CONFLICT (id) DO NOTHING;
+      ALTER TABLE menu_items ADD COLUMN IF NOT EXISTS pricing_breakdown JSONB DEFAULT '{}'::jsonb;
+      ALTER TABLE menu_items ADD COLUMN IF NOT EXISTS ingredient_details JSONB DEFAULT '[]'::jsonb;
+    `;
   
   // Try via rpc
   const { error: rpcErr } = await supabaseAdmin.rpc("exec_sql", { sql_text: sql });

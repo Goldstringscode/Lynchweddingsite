@@ -73,6 +73,7 @@ export function AdminDashboard() {
           title={meta.title}
           subtitle={meta.subtitle}
           onOpenMobile={() => setMobileOpen(true)}
+          onNavigate={handleNavigate}
         />
 
         <main className="p-4 lg:p-8">

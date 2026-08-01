@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import {
   Card,
   CardContent,
@@ -48,7 +48,41 @@ function ToggleRow({
 export function SettingsPage() {
   const [emailNotifs, setEmailNotifs] = useState(true)
   const [darkMode, setDarkMode] = useState(false)
-  const [weddingDate, setWeddingDate] = useState("2026-09-14")
+  const [weddingDate, setWeddingDate] = useState("2026-09-26")
+  const [saving, setSaving] = useState(false)
+  const [loaded, setLoaded] = useState(false)
+
+  useEffect(() => {
+    fetch("/api/wedding-settings")
+      .then(r => r.json())
+      .then(data => {
+        if (data && data.id) {
+          setEmailNotifs(data.email_notifications ?? true)
+          setWeddingDate(data.wedding_date || "2026-09-26")
+        }
+        setLoaded(true)
+      })
+      .catch(() => setLoaded(true))
+  }, [])
+
+  async function handleSave() {
+    setSaving(true)
+    try {
+      const res = await fetch("/api/wedding-settings", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email_notifications: emailNotifs, wedding_date: weddingDate }),
+      })
+      if (res.ok) {
+        alert("Settings saved successfully!")
+      } else {
+        alert("Failed to save settings.")
+      }
+    } catch {
+      alert("Failed to save settings.")
+    }
+    setSaving(false)
+  }
 
   return (
     <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
@@ -101,7 +135,9 @@ export function SettingsPage() {
               />
             </Field>
             <div>
-              <Button type="button">Save Changes</Button>
+              <Button type="button" onClick={handleSave} disabled={saving}>
+                {saving ? "Saving..." : "Save Changes"}
+              </Button>
             </div>
           </FieldGroup>
         </CardContent>

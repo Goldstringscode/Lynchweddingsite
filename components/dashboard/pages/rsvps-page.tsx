@@ -124,6 +124,7 @@ export function RsvpsPage() {
             placeholder="Search by guest name..."
             className="h-9 pl-8"
             aria-label="Search guests by name"
+            data-rsvp-search
           />
         </div>
       </CardHeader>
