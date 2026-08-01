@@ -2,10 +2,11 @@
 
 import { useState } from "react"
 import { MenuBuilderTab } from "@/components/menu-builder/menu-builder-tab"
+import { BuffetBuilderTab } from "@/components/menu-builder/buffet-builder-tab"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
-import { UtensilsCrossed, Lock, Heart, Sparkles } from "lucide-react"
+import { UtensilsCrossed, Lock, Heart, Sparkles, ChefHat } from "lucide-react"
 
 const WEDDING_CODE = "JNLynch26"
 
@@ -13,6 +14,7 @@ export default function MenuBuilderStandalone() {
   const [authenticated, setAuthenticated] = useState(false)
   const [code, setCode] = useState("")
   const [error, setError] = useState(false)
+  const [menuMode, setMenuMode] = useState<"plated" | "buffet">("plated")
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -92,8 +94,8 @@ export default function MenuBuilderStandalone() {
   return (
     <div className="min-h-svh bg-[#fafafa]">
       {/* Couple header */}
-      <div className="border-b border-border/40 bg-white/80 backdrop-blur-sm">
-        <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
+      <div className="border-b border-border/40 bg-white/80 backdrop-blur-sm sticky top-0 z-30">
+        <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="size-9 rounded-lg bg-primary/10 flex items-center justify-center">
               <UtensilsCrossed className="size-4 text-primary" />
@@ -107,7 +109,38 @@ export default function MenuBuilderStandalone() {
               </p>
             </div>
           </div>
-          <p className="text-xs text-muted-foreground">
+
+          {/* Tab Switcher */}
+          <div className="flex items-center gap-1.5 bg-muted/50 rounded-xl p-1 border border-border/30">
+            <button
+              onClick={() => setMenuMode("plated")}
+              className={cn(
+                "flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-medium transition-all duration-200",
+                menuMode === "plated"
+                  ? "bg-white dark:bg-card shadow-sm text-foreground"
+                  : "text-muted-foreground hover:text-foreground"
+              )}
+            >
+              <UtensilsCrossed className="size-3.5" />
+              <span className="hidden sm:inline">Plated</span>
+              <span className="sm:hidden">Plate</span>
+            </button>
+            <button
+              onClick={() => setMenuMode("buffet")}
+              className={cn(
+                "flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-medium transition-all duration-200",
+                menuMode === "buffet"
+                  ? "bg-white dark:bg-card shadow-sm text-foreground"
+                  : "text-muted-foreground hover:text-foreground"
+              )}
+            >
+              <ChefHat className="size-3.5" />
+              <span className="hidden sm:inline">Buffet</span>
+              <span className="sm:hidden">Buffet</span>
+            </button>
+          </div>
+
+          <p className="text-xs text-muted-foreground hidden sm:block">
             September 14, 2026
           </p>
         </div>
@@ -116,7 +149,7 @@ export default function MenuBuilderStandalone() {
       {/* Content */}
       <div className="max-w-6xl mx-auto px-4 py-6">
         <div className="rounded-lg bg-white/50 p-1 sm:p-2">
-          <MenuBuilderTab />
+          {menuMode === "plated" ? <MenuBuilderTab /> : <BuffetBuilderTab />}
         </div>
       </div>
     </div>
