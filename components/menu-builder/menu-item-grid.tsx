@@ -1,6 +1,6 @@
 "use client"
 
-import { Search, Sparkles, Plus, Salad, Beef, Cookie, Weight, Flame, Clock, Check, Store } from "lucide-react"
+import { Search, Sparkles, Plus, Salad, Beef, Cookie, Weight, Flame, Clock, Check, Store, X } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
@@ -216,14 +216,14 @@ export function MenuItemGrid({ items, sectionFilter, activeSections, searchQuery
                   className={cn(
                     "w-full flex items-center justify-center gap-1.5 rounded-md py-1.5 text-[10px] font-medium transition-all",
                     isAdded
-                      ? "bg-emerald-50 text-emerald-600 border border-emerald-200 dark:bg-emerald-950/20 dark:text-emerald-400 dark:border-emerald-800"
-                      : "bg-primary/5 text-primary border border-primary/20 hover:bg-primary/10 hover:border-primary/40"
+                                          ? "bg-red-50 text-red-600 border border-red-200 dark:bg-red-950/20 dark:text-red-400 dark:border-red-800"
+                                          : "bg-primary/5 text-primary border border-primary/20 hover:bg-primary/10 hover:border-primary/40"
                   )}
                 >
                   {isAdded ? (
-                    <><Check className="size-3" /> Added</>
-                  ) : (
-                    <><Plus className="size-3" /> Add to Menu</>
+                                      <><X className="size-3" /> Remove from Menu</>
+                                    ) : (
+                                      <><Plus className="size-3" /> Add to Menu</>
                   )}
                 </button>
               </div>

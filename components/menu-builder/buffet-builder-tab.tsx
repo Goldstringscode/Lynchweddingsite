@@ -170,7 +170,7 @@ function BuffetItemCard({ item, onSelect, onAdd, isAdded }: {
             className="w-full gap-1.5 h-8 text-xs rounded-xl"
           >
             {isAdded ? <Check className="size-3.5" /> : <Plus className="size-3.5" />}
-            {isAdded ? "Added to Buffet" : "Add to Buffet"}
+            {isAdded ? "Remove from Menu" : "Add to Menu"}
           </Button>
         </div>
       </div>
