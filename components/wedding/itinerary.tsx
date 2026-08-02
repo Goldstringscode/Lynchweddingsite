@@ -63,7 +63,8 @@ export function Itinerary() {
           </h2>
           <Divider className="mt-6" />
           <p className="mt-6 font-sans text-sm leading-relaxed text-primary-foreground/60">
-            Hover over each moment to reveal the details.
+            <span className="hidden md:inline">Hover over each moment to reveal the details.</span>
+            <span className="md:hidden">Click on each moment to reveal the details.</span>
           </p>
         </Reveal>
 

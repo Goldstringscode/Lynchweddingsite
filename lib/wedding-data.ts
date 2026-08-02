@@ -39,8 +39,8 @@ export const itinerary: TimelineEvent[] = [
     duration: "4:00 – 4:45 PM",
     location: "Four Seasons at Terra Lago, Indio",
     details:
-      "Please arrive by 3:45 PM to be seated. The ceremony will be held indoors in the chapel, followed by a receiving line with the newlyweds. Unplugged ceremony, please.",
-  },
+          "Seating begins promptly at 3:35 PM and ends at 3:50 PM. Doors will be closed at 3:50 PM and will reopen when the bridal procession is complete.",
+      },
   {
     time: "5:00 PM",
     title: "Cocktail Hour",

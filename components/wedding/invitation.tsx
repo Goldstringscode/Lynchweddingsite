@@ -22,7 +22,14 @@ function DetailRow({
         <p className="font-sans text-xs uppercase tracking-[0.25em] text-muted-foreground">
           {label}
         </p>
-        <p className="mt-1 font-serif text-lg text-foreground">{value}</p>
+        {value.includes(' | ') ? (
+            <>
+              <p className="mt-1 font-serif text-lg text-foreground">{value.split(' | ')[0]}</p>
+              <p className="font-serif text-lg text-foreground text-center">{value.split(' | ')[1]}</p>
+            </>
+          ) : (
+            <p className="mt-1 font-serif text-lg text-foreground">{value}</p>
+          )}
         {sub ? (
           <p className="font-sans text-sm text-muted-foreground">{sub}</p>
         ) : null}
