@@ -28,7 +28,7 @@ export async function POST(request: NextRequest) {
       .insert({
         name,
         stations: [],
-        guest_count: 150,
+        guest_count: 80,
         total_cost_per_person: 0,
         total_menu_cost: 0,
       })

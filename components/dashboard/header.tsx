@@ -47,7 +47,6 @@ export function Header({ title, subtitle, onOpenMobile, onNavigate }: HeaderProp
   function handleSearchKeyDown(e: React.KeyboardEvent) {
     if (e.key === "Enter" && searchQuery.trim()) {
       onNavigate?.("rsvps")
-      // Navigate after a tick to let the page mount
       setTimeout(() => {
         const input = document.querySelector<HTMLInputElement>('[data-rsvp-search]')
         if (input) {
@@ -121,51 +120,27 @@ export function Header({ title, subtitle, onOpenMobile, onNavigate }: HeaderProp
           )}
         </div>
 
-        <DropdownMenu>
-          <DropdownMenuTrigger
-            render={
-              <Button
-                variant="ghost"
-                className="h-10 gap-2 px-1.5 sm:pr-2.5"
-                aria-label="Account menu"
-              />
-            }
-          >
-            <Avatar className="size-8">
-              <AvatarImage src="/admin-avatar.png" alt="" />
-              <AvatarFallback className="bg-primary text-primary-foreground">
-                EA
-              </AvatarFallback>
-            </Avatar>
-            <span className="hidden text-left leading-tight sm:block">
-              <span className="block text-sm font-medium text-foreground">
-                Elena Ashford
-              </span>
-              <span className="block text-xs text-muted-foreground">
-                Lead Planner
-              </span>
-            </span>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-52">
-            <DropdownMenuLabel>My Account</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuGroup>
-              <DropdownMenuItem onClick={() => { onNavigate?.("settings"); router.push("/admin") }}>
-                <User />
-                Profile
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => { onNavigate?.("settings"); router.push("/admin") }}>
-                <Settings2 />
-                Preferences
-              </DropdownMenuItem>
-            </DropdownMenuGroup>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem variant="destructive" onClick={handleSignOut}>
-              <LogOut />
-              Sign out
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <Button
+                  variant="ghost"
+                  className="h-10 gap-2 px-1.5 sm:pr-2.5"
+                  aria-label="Account menu"
+                  onClick={() => { onNavigate?.("settings"); router.push("/admin") }}
+                >
+                  <Avatar className="size-8">
+                    <AvatarImage src="/admin-avatar.png" alt="" />
+                    <AvatarFallback className="bg-primary text-primary-foreground">
+                      NJ
+                    </AvatarFallback>
+                  </Avatar>
+                  <span className="hidden text-left leading-tight sm:block">
+                    <span className="block text-sm font-medium text-foreground">
+                      Nikkita &amp; Justin
+                    </span>
+                    <span className="block text-xs text-muted-foreground">
+                      Wedding Concierge
+                    </span>
+                  </span>
+                </Button>
       </div>
     </header>
   )

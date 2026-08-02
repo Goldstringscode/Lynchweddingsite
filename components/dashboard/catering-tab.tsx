@@ -96,7 +96,7 @@ export function CateringTab() {
   const [catalog, setCatalog] = useState<CatalogItem[]>([])
   const [drafts, setDrafts] = useState<MenuDraft[]>([])
   const [loading, setLoading] = useState(true)
-  const [guestCount, setGuestCount] = useState(150)
+  const [guestCount, setGuestCount] = useState(80)
   const [preferredStore, setPreferredStore] = useState<StoreKey>("costco")
   const [selectedDraftId, setSelectedDraftId] = useState<string | null>(null)
   const [exporting, setExporting] = useState(false)

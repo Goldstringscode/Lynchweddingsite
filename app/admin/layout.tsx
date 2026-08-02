@@ -11,5 +11,5 @@ export default function AdminLayout({
 }: Readonly<{
   children: React.ReactNode
 }>) {
-  return <div className="light min-h-svh bg-background">{children}</div>
+  return <>{children}</>
 }

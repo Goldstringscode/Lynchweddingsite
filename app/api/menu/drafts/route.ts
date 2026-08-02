@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
         name,
         description: description || "",
         event_type: event_type || "wedding",
-        guest_count: guest_count || 150,
+        guest_count: guest_count || 80,
         target_budget_per_person: target_budget_per_person || null,
         courses: courses || [],
       })

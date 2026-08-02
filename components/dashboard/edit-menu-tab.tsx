@@ -6,11 +6,12 @@ import {
 } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
+import { Input } from "@/components/ui/input"
 import {
   Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle,
 } from "@/components/ui/dialog"
 import {
-  Plus, Trash2, UtensilsCrossed, Loader2, Coffee, Beef, Salad, CakeSlice, ArrowLeft,
+  Plus, Trash2, UtensilsCrossed, Loader2, Coffee, Beef, Salad, CakeSlice, ArrowLeft, Users,
 } from "lucide-react"
 
 interface MenuDraftCourse {
@@ -74,7 +75,8 @@ export function EditMenuTab() {
   const [loading, setLoading] = useState(true)
   const [selectedDraftId, setSelectedDraftId] = useState<string | null>(null)
   const [editIngredientOpen, setEditIngredientOpen] = useState(false)
-  const [editingCourse, setEditingCourse] = useState<MenuDraftCourse | null>(null)
+    const [editingCourse, setEditingCourse] = useState<MenuDraftCourse | null>(null)
+    const [guestCount, setGuestCount] = useState(80)
 
   const fetchData = useCallback(async () => {
     try {
@@ -92,7 +94,14 @@ export function EditMenuTab() {
 
   useEffect(() => { fetchData() }, [fetchData])
 
-  const selectedDraft = drafts.find(d => d.id === selectedDraftId)
+    const selectedDraft = drafts.find(d => d.id === selectedDraftId)
+
+    // Sync guestCount from the selected draft
+    useEffect(() => {
+      if (selectedDraft?.guest_count) {
+        setGuestCount(selectedDraft.guest_count)
+      }
+    }, [selectedDraft])
 
   const catalogMap = new Map(catalog.map(i => [i.id, i]))
 
@@ -177,18 +186,42 @@ export function EditMenuTab() {
           <Button variant="ghost" size="icon" className="size-8" onClick={() => setSelectedDraftId(null)}>
             <ArrowLeft className="size-4" />
           </Button>
-          <div>
-            <h3 className="font-serif text-lg font-medium">{selectedDraft?.name}</h3>
-            <p className="text-sm text-muted-foreground">
-              {selectedDraft?.courses.length ?? 0} item{(selectedDraft?.courses.length ?? 0) !== 1 ? "s" : ""}
-              {selectedDraft?.guest_count ? ` · ${selectedDraft.guest_count} guests` : ""}
-            </p>
-          </div>
-        </div>
-        <Button variant="outline" size="sm" className="text-destructive gap-2" onClick={handleDeleteDraft}>
-          <Trash2 className="size-3.5" /> Delete Menu
-        </Button>
-      </div>
+                    <div>
+                      <h3 className="font-serif text-lg font-medium">{selectedDraft?.name}</h3>
+                      <p className="text-sm text-muted-foreground">
+                        {selectedDraft?.courses.length ?? 0} item{(selectedDraft?.courses.length ?? 0) !== 1 ? "s" : ""}
+                        {selectedDraft?.guest_count ? ` · ${selectedDraft.guest_count} guests` : ""}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <Users className="size-4" strokeWidth={1.5} />
+                      <Input
+                        type="number"
+                        min={1}
+                        value={guestCount}
+                        onChange={(e) => {
+                          const n = Math.max(1, parseInt(e.target.value) || 1)
+                          setGuestCount(n)
+                          // Persist to backend
+                          if (selectedDraft) {
+                            fetch("/api/menu/drafts", {
+                              method: "PUT",
+                              headers: { "Content-Type": "application/json" },
+                              body: JSON.stringify({ id: selectedDraft.id, guest_count: n }),
+                            }).catch(() => {})
+                          }
+                        }}
+                        className="w-20 h-8 text-xs text-center tabular-nums rounded-xl"
+                      />
+                      <span className="text-xs">guests</span>
+                    </div>
+                                        <Button variant="outline" size="sm" className="text-destructive gap-2" onClick={handleDeleteDraft}>
+                              <Trash2 className="size-3.5" /> Delete Menu
+                            </Button>
+                          </div>
+                          </div>
 
       {(!selectedDraft || selectedDraft.courses.length === 0) ? (
         <Card>
@@ -283,34 +316,86 @@ export function EditMenuTab() {
             )
           })}
 
-          {/* Summary card */}
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="font-serif text-base">Menu Summary</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
-                <div>
-                  <p className="text-2xl font-bold">{selectedDraft.courses.length}</p>
-                  <p className="text-xs text-muted-foreground">Total Items</p>
-                </div>
-                <div>
-                  <p className="text-2xl font-bold">{drafts.length}</p>
-                  <p className="text-xs text-muted-foreground">Saved Menus</p>
-                </div>
-                <div>
-                  <p className="text-2xl font-bold">{selectedDraft.guest_count || 150}</p>
-                  <p className="text-xs text-muted-foreground">Guest Count</p>
-                </div>
-                <div>
-                  <p className="text-lg font-bold">
-                    ${selectedDraft.total_cost_per_person?.toFixed(2) ?? "\u2014"}
-                  </p>
-                  <p className="text-xs text-muted-foreground">Cost / Person</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          {/* Summary card — computed from actual items */}
+                    <Card>
+                      <CardHeader className="pb-3">
+                        <CardTitle className="font-serif text-base">Menu Summary</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        {(() => {
+                          const gc = guestCount
+                                                    const courseItems = selectedDraft.courses.map(c => catalogMap.get(c.item_id)).filter(Boolean) as CatalogItem[]
+                                                    const totalItems = courseItems.length
+                                                    const signatureCount = courseItems.filter(i => i.is_signature).length
+                                                    const totalMenuPrice = courseItems.reduce((sum, i) => sum + (i.suggested_menu_price ?? i.price ?? 0), 0)
+                                                    const totalFoodCost = courseItems.reduce((sum, i) => sum + (i.cost_per_serving ?? 0), 0)
+                                                    const avgPricePerPerson = totalItems > 0 ? totalMenuPrice / totalItems : 0
+                                                    const totalMenuValue = totalMenuPrice * gc
+                                                    return (
+                                                      <div className="grid grid-cols-3 sm:grid-cols-6 gap-3 text-center">
+                                                        <div>
+                                                          <p className="text-2xl font-bold">{totalItems}</p>
+                                                          <p className="text-xs text-muted-foreground">Items</p>
+                                                        </div>
+                                                        <div>
+                                                          <p className="text-2xl font-bold">{selectedDraft.courses.length}</p>
+                                                          <p className="text-xs text-muted-foreground">Courses</p>
+                                                        </div>
+                                                        <div>
+                                                          <p className="text-2xl font-bold">{signatureCount}</p>
+                                                          <p className="text-xs text-muted-foreground">Signature</p>
+                                                        </div>
+                                                        <div>
+                                                          <p className="text-2xl font-bold">{gc}</p>
+                                                          <p className="text-xs text-muted-foreground">Guests</p>
+                                                        </div>
+                                                        <div>
+                                                          <p className="text-lg font-bold">${avgPricePerPerson.toFixed(2)}</p>
+                                                          <p className="text-xs text-muted-foreground">Avg $ / Guest</p>
+                                                        </div>
+                                                        <div>
+                                                          <p className="text-lg font-bold">${totalMenuValue.toFixed(2)}</p>
+                                                          <p className="text-xs text-muted-foreground">Menu Value</p>
+                                                        </div>
+                                                      </div>
+                                                    )
+                                                  })()}
+                                                </CardContent>
+                                              </Card>
+                                              {(() => {
+                                                const gc = guestCount
+                      const courseItems = selectedDraft.courses.map(c => catalogMap.get(c.item_id)).filter(Boolean) as CatalogItem[]
+                      const totalFoodCost = courseItems.reduce((sum, i) => sum + (i.cost_per_serving ?? 0), 0)
+                      const totalMenuPrice = courseItems.reduce((sum, i) => sum + (i.suggested_menu_price ?? i.price ?? 0), 0)
+                      if (totalFoodCost === 0 && totalMenuPrice === 0) return null
+                      const margin = totalMenuPrice > 0 ? ((totalMenuPrice - totalFoodCost) / totalMenuPrice * 100) : 0
+                      return (
+                        <Card className="mt-3">
+                          <CardContent className="pt-4">
+                            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
+                              <div>
+                                <p className="text-lg font-bold text-muted-foreground">${totalFoodCost.toFixed(2)}</p>
+                                <p className="text-xs text-muted-foreground">Total Food Cost</p>
+                              </div>
+                              <div>
+                                <p className="text-lg font-bold">${totalMenuPrice.toFixed(2)}</p>
+                                <p className="text-xs text-muted-foreground">Total Menu Price</p>
+                              </div>
+                              <div>
+                                <p className="text-lg font-bold text-emerald-600">${(totalMenuPrice - totalFoodCost).toFixed(2)}</p>
+                                <p className="text-xs text-muted-foreground">Gross Profit</p>
+                              </div>
+                              <div>
+                                <p className={`text-lg font-bold ${margin >= 50 ? 'text-emerald-600' : margin >= 30 ? 'text-amber-600' : 'text-red-500'}`}>
+                                  {margin.toFixed(1)}%
+                                </p>
+                                <p className="text-xs text-muted-foreground">Margin</p>
+                              </div>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      )
+                    })()}
         </>
       )}
     </div>

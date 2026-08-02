@@ -46,7 +46,7 @@ interface BuffetStation {
   id: string
   name: string
   type: string
-  items: { item: BuffetItem; portion?: string }[]
+  items: { item: BuffetItem; portion?: string; servingGuests?: number }[]
   notes?: string
 }
 
@@ -117,18 +117,28 @@ function BuffetItemCard({ item, onSelect, onAdd, isAdded }: {
             </div>
           </div>
 
-          {/* Price row */}
-          <div className="flex items-center gap-3 flex-wrap mt-2.5">
-            <span className="text-xl sm:text-2xl font-serif font-bold tabular-nums text-emerald-600 dark:text-emerald-400">
-              ${price.toFixed(2)}
-            </span>
-            <span className="text-[11px] text-muted-foreground uppercase tracking-wider">per person</span>
-            {item.cost_per_serving > 0 && (
-              <span className="text-xs text-muted-foreground/70">
-                (${item.cost_per_serving.toFixed(2)} cost)
-              </span>
-            )}
-          </div>
+          {/* Price row — clearly labeled selling price vs food cost */}
+                    <div className="flex items-center gap-3 flex-wrap mt-2.5">
+                      <div className="flex flex-col">
+                        <span className="text-xl sm:text-2xl font-serif font-bold tabular-nums text-emerald-600 dark:text-emerald-400 leading-none">
+                          ${price.toFixed(2)}
+                        </span>
+                        <span className="text-[9px] text-muted-foreground/60 uppercase tracking-wider mt-0.5">Sell Price / pp</span>
+                      </div>
+                      {item.cost_per_serving > 0 && (
+                        <div className="flex flex-col items-start">
+                          <span className="text-sm sm:text-base font-mono font-bold tabular-nums text-amber-600 dark:text-amber-400 leading-none">
+                            ${item.cost_per_serving.toFixed(2)}
+                          </span>
+                          <span className="text-[9px] text-muted-foreground/60 uppercase tracking-wider mt-0.5">Food Cost / pp</span>
+                        </div>
+                      )}
+                      {item.cost_per_serving > 0 && (
+                        <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-emerald-100/60 text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-400">
+                          {(((price - item.cost_per_serving) / price) * 100).toFixed(0)}% margin
+                        </span>
+                      )}
+                    </div>
 
           {/* Dietary labels */}
           {item.dietary_labels && item.dietary_labels.length > 0 && (
@@ -364,7 +374,7 @@ export function BuffetBuilderTab() {
   const [sortOrder, setSortOrder] = useState<"default" | "low-high" | "high-low">("default")
 
   // Buffet menu state
-  const [guestCount, setGuestCount] = useState(150)
+  const [guestCount, setGuestCount] = useState(80)
   const [buffetMenus, setBuffetMenus] = useState<BuffetMenu[]>([])
   const [activeMenuId, setActiveMenuId] = useState<string | null>(null)
   const [selectedItem, setSelectedItem] = useState<BuffetItem | null>(null)
@@ -401,7 +411,7 @@ export function BuffetBuilderTab() {
         const menus: BuffetMenu[] = data.map((d: any) => ({
           id: d.id,
           name: d.name,
-          guest_count: d.guest_count || 150,
+          guest_count: d.guest_count || 80,
           stations: d.stations || [],
           total_cost_per_person: d.total_cost_per_person || 0,
           total_menu_cost: d.total_menu_cost || 0,
@@ -419,7 +429,7 @@ export function BuffetBuilderTab() {
   const createDefaultMenu = () => {
     const id = crypto.randomUUID()
     const newMenu: BuffetMenu = {
-      id, name: "Buffet Menu 1", guest_count: 150,
+      id, name: "Buffet Menu 1", guest_count: 80,
       stations: [], total_cost_per_person: 0, total_menu_cost: 0,
     }
     setBuffetMenus([newMenu])
@@ -454,44 +464,70 @@ export function BuffetBuilderTab() {
     proteins: "Proteins", sides: "Sides", desserts: "Desserts",
   }
 
-  // Add item to buffet
-  const addToBuffet = (item: BuffetItem) => {
-    if (!activeMenu) return
-    // Add to first appropriate station or create one
-    const stationType = item.station_type || "self-serve"
+  // Save buffet menu to backend
+    const saveMenu = async (menu: BuffetMenu) => {
+      try {
+        await fetch(`/api/buffet/menus/${menu.id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            name: menu.name,
+            guest_count: menu.guest_count,
+            stations: menu.stations,
+            total_cost_per_person: menu.total_cost_per_person,
+            total_menu_cost: menu.total_menu_cost,
+          }),
+        })
+      } catch (e) {
+        console.error("Failed to save buffet menu:", e)
+      }
+    }
+
+    // Add item to buffet
+    const addToBuffet = (item: BuffetItem) => {
+      if (!activeMenu) return
+      // Add to first appropriate station or create one
+      const stationType = item.station_type || "self-serve"
+      const gc = activeMenu.guest_count || 150
     const existingStation = activeMenu.stations.find(s => s.type === stationType)
     
     if (existingStation) {
-      existingStation.items.push({ item })
+      existingStation.items.push({ item, servingGuests: gc })
     } else {
       activeMenu.stations.push({
         id: crypto.randomUUID(),
         name: stationType === "self-serve" ? `${item.category} Display` : `${stationType.charAt(0).toUpperCase() + stationType.slice(1).replace("-", " ")} Station`,
         type: stationType,
-        items: [{ item }],
+        items: [{ item, servingGuests: gc }],
       })
     }
     recalculateMenu(activeMenu)
-    setBuffetMenus([...buffetMenus])
-  }
+        setBuffetMenus([...buffetMenus])
+        saveMenu(activeMenu)
+      }
 
-  const removeFromStation = (stationId: string, itemId: string) => {
-    if (!activeMenu) return
-    const station = activeMenu.stations.find(s => s.id === stationId)
-    if (!station) return
-    station.items = station.items.filter(i => i.item.id !== itemId)
-    if (station.items.length === 0) {
-      activeMenu.stations = activeMenu.stations.filter(s => s.id !== stationId)
-    }
-    recalculateMenu(activeMenu)
-    setBuffetMenus([...buffetMenus])
+      const removeFromStation = (stationId: string, itemId: string) => {
+        if (!activeMenu) return
+        const station = activeMenu.stations.find(s => s.id === stationId)
+        if (!station) return
+        station.items = station.items.filter(i => i.item.id !== itemId)
+        if (station.items.length === 0) {
+          activeMenu.stations = activeMenu.stations.filter(s => s.id !== stationId)
+        }
+        recalculateMenu(activeMenu)
+        setBuffetMenus([...buffetMenus])
+        saveMenu(activeMenu)
   }
 
   const recalculateMenu = (menu: BuffetMenu) => {
     let totalPerPerson = 0
     for (const station of menu.stations) {
       for (const si of station.items) {
-        totalPerPerson += si.item.price_per_person || 0
+        const gc = menu.guest_count || 150
+        const sg = si.servingGuests ?? gc
+        const portionMultiplier = si.portion === "large" ? 1.5 : si.portion === "small" ? 0.67 : 1
+        const itemCost = (si.item.price_per_person || 0) * portionMultiplier * (sg / gc)
+        totalPerPerson += itemCost
       }
     }
     menu.total_cost_per_person = totalPerPerson
@@ -540,10 +576,11 @@ export function BuffetBuilderTab() {
                   const n = parseInt(e.target.value) || 0
                   setGuestCount(n)
                   if (activeMenu) {
-                    activeMenu.guest_count = n
-                    recalculateMenu(activeMenu)
-                    setBuffetMenus([...buffetMenus])
-                  }
+                                      activeMenu.guest_count = n
+                                      recalculateMenu(activeMenu)
+                                      setBuffetMenus([...buffetMenus])
+                                      saveMenu(activeMenu)
+                                    }
                 }}
                 className="w-20 h-8 text-xs text-center tabular-nums rounded-xl"
                 min={1}

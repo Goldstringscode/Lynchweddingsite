@@ -21,6 +21,7 @@ const MEAL_OPTIONS: MealChoice[] = ["Beef", "Chicken", "Fish", "Pork", "Vegan"]
 type RsvpData = {
   name: string
   email: string
+  phone: string
   guests: string
   meal: MealChoice
   guestMeal: MealChoice | null
@@ -39,6 +40,7 @@ function makeAccessCode(name: string) {
 export function Rsvp() {
   const [name, setName] = useState("")
   const [email, setEmail] = useState("")
+  const [phone, setPhone] = useState("")
   const [guests, setGuests] = useState("1")
   const [meal, setMeal] = useState<MealChoice>("Beef")
   const [guestMeal, setGuestMeal] = useState<MealChoice>("Beef")
@@ -53,11 +55,11 @@ export function Rsvp() {
       const res = await fetch("/api/rsvp", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, phone: "", guest_count: parseInt(guests), meal_choice: meal, guest_meal: guests === "2" ? guestMeal : null, dietary, is_attending: attendance === "accept" }),
+        body: JSON.stringify({ name, email, phone, guest_count: parseInt(guests), meal_choice: meal, guest_meal: guests === "2" ? guestMeal : null, dietary, is_attending: attendance === "accept" }),
       })
       if (res.ok) {
         const data = await res.json()
-        setSubmitted({ name, email, guests, meal, guestMeal: guests === "2" ? guestMeal : null, dietary, attendance, code: data.access_code || accessCode })
+        setSubmitted({ name, email, phone, guests, meal, guestMeal: guests === "2" ? guestMeal : null, dietary, attendance, code: data.access_code || accessCode })
       } else if (res.status === 409) {
         const err = await res.json()
         alert(err.error || "A guest with this email has already RSVP'd.")
@@ -65,7 +67,7 @@ export function Rsvp() {
         alert("Something went wrong submitting your RSVP. Please try again or contact the wedding planner.")
       }
     } catch {
-      setSubmitted({ name, email, guests, meal, guestMeal: guests === "2" ? guestMeal : null, dietary, attendance, code: accessCode })
+      setSubmitted({ name, email, phone, guests, meal, guestMeal: guests === "2" ? guestMeal : null, dietary, attendance, code: accessCode })
     }
     setTimeout(() => {
       document
@@ -78,6 +80,7 @@ export function Rsvp() {
     setSubmitted(null)
     setName("")
     setEmail("")
+    setPhone("")
     setGuests("1")
     setMeal("Beef")
     setGuestMeal("Beef")
@@ -137,6 +140,21 @@ export function Rsvp() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="you@example.com"
+                  className="rounded-none border-input focus-visible:ring-primary"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="phone" className="uppercase tracking-wider text-xs">
+                  Phone Number
+                </Label>
+                <Input
+                  id="phone"
+                  type="tel"
+                  required
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  placeholder="(555) 123-4567"
                   className="rounded-none border-input focus-visible:ring-primary"
                 />
               </div>

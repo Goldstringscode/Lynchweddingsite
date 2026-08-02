@@ -41,7 +41,7 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
   colorScheme: 'light',
-  themeColor: '#0a0a0f',
+  themeColor: '#fafafa',
 }
 
 export default function RootLayout({
@@ -50,65 +50,15 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html
-      lang="en"
-      className={`${playfair.variable} ${montserrat.variable}`}
-      suppressHydrationWarning
-    >
+    <html lang="en" className={`light ${playfair.variable} ${montserrat.variable}`} suppressHydrationWarning>
       {/* Inline CSS to prevent gray flash — paints bg before external CSS loads */}
       <style
         dangerouslySetInnerHTML={{
           __html: [
-            'html { background-color: #0a0a0f; }',
-            'body { background-color: #0a0a0f; margin: 0; padding: 0; }',
-            /* Default: dark mode with green/gold theme */
+            'html { background-color: #fafafa; }',
+            'body { background-color: #fafafa; margin: 0; padding: 0; }',
+            /* Default: light mode with green/gold theme */
             ':root {',
-            '  --background: oklch(0.145 0 0);',
-            '  --foreground: oklch(0.985 0 0);',
-            '  --card: oklch(0.185 0 0);',
-            '  --card-foreground: oklch(0.985 0 0);',
-            '  --popover: oklch(0.185 0 0);',
-            '  --popover-foreground: oklch(0.985 0 0);',
-            '  --primary: oklch(0.42 0.075 152);',
-            '  --primary-foreground: oklch(0.985 0 0);',
-            '  --gold: oklch(0.74 0.125 84);',
-            '  --gold-foreground: oklch(0.22 0.02 84);',
-            '  --secondary: oklch(0.25 0 0);',
-            '  --secondary-foreground: oklch(0.985 0 0);',
-            '  --muted: oklch(0.25 0 0);',
-            '  --muted-foreground: oklch(0.78 0 0);',
-            '  --accent: oklch(0.25 0.02 152);',
-            '  --accent-foreground: oklch(0.985 0 0);',
-            '  --destructive: oklch(0.704 0.191 22.216);',
-            '  --border: oklch(1 0 0 / 12%);',
-            '  --input: oklch(1 0 0 / 15%);',
-            '  --ring: oklch(0.42 0.075 152);',
-            '}',
-            /* Override globals.css @media (prefers-color-scheme: dark) which sets primary to gray */
-            ':root:not(.light) {',
-            '  --primary: oklch(0.42 0.075 152) !important;',
-            '  --primary-foreground: oklch(0.985 0 0) !important;',
-            '  --gold: oklch(0.74 0.125 84) !important;',
-            '  --gold-foreground: oklch(0.22 0.02 84) !important;',
-            '  --muted-foreground: oklch(0.78 0 0) !important;',
-            '  --card: oklch(0.185 0 0) !important;',
-            '  --card-foreground: oklch(0.985 0 0) !important;',
-            '  --popover: oklch(0.185 0 0) !important;',
-            '  --popover-foreground: oklch(0.985 0 0) !important;',
-            '  --secondary: oklch(0.25 0 0) !important;',
-            '  --secondary-foreground: oklch(0.985 0 0) !important;',
-            '  --muted: oklch(0.25 0 0) !important;',
-            '  --accent: oklch(0.25 0.02 152) !important;',
-            '  --accent-foreground: oklch(0.985 0 0) !important;',
-            '  --border: oklch(1 0 0 / 12%) !important;',
-            '  --input: oklch(1 0 0 / 15%) !important;',
-            '  --ring: oklch(0.42 0.075 152) !important;',
-            '  --background: oklch(0.145 0 0) !important;',
-            '  --foreground: oklch(0.985 0 0) !important;',
-            '}',
-            '.light {',
-            '  background-color: #fafafa;',
-            '  color: oklch(0.15 0 0);',
             '  --background: oklch(0.98 0 0);',
             '  --foreground: oklch(0.15 0 0);',
             '  --card: oklch(1 0 0);',
@@ -129,6 +79,31 @@ export default function RootLayout({
             '  --input: oklch(0.9 0 0);',
             '  --ring: oklch(0.42 0.075 152);',
             '  --destructive: oklch(0.577 0.245 27.325);',
+            '}',
+            /* Dark mode for admin panel */
+            '.dark {',
+            '  background-color: #0a0a0f;',
+            '  color: oklch(0.985 0 0);',
+            '  --background: oklch(0.145 0 0);',
+            '  --foreground: oklch(0.985 0 0);',
+            '  --card: oklch(0.185 0 0);',
+            '  --card-foreground: oklch(0.985 0 0);',
+            '  --popover: oklch(0.185 0 0);',
+            '  --popover-foreground: oklch(0.985 0 0);',
+            '  --primary: oklch(0.42 0.075 152);',
+            '  --primary-foreground: oklch(0.985 0 0);',
+            '  --gold: oklch(0.74 0.125 84);',
+            '  --gold-foreground: oklch(0.22 0.02 84);',
+            '  --secondary: oklch(0.25 0 0);',
+            '  --secondary-foreground: oklch(0.985 0 0);',
+            '  --muted: oklch(0.25 0 0);',
+            '  --muted-foreground: oklch(0.78 0 0);',
+            '  --accent: oklch(0.25 0.02 152);',
+            '  --accent-foreground: oklch(0.985 0 0);',
+            '  --border: oklch(1 0 0 / 12%);',
+            '  --input: oklch(1 0 0 / 15%);',
+            '  --ring: oklch(0.42 0.075 152);',
+            '  --destructive: oklch(0.704 0.191 22.216);',
             '}',
           ].join('\n'),
         }}
