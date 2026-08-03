@@ -26,7 +26,7 @@ export function Program() {
             <Button
               size="lg"
               nativeButton={false}
-              className="mt-10 h-auto min-h-12 w-full max-w-xs rounded-none bg-primary px-6 py-3 font-sans text-xs uppercase tracking-[0.2em] text-primary-foreground hover:bg-primary/90 sm:w-auto sm:px-10 sm:text-sm"
+              className="mt-10 h-auto min-h-14 w-full max-w-sm rounded-none bg-primary px-8 py-4 font-sans text-xs uppercase tracking-[0.2em] text-primary-foreground hover:bg-primary/90 sm:w-auto sm:px-12 sm:text-sm"
               render={
                 <a href="/program" target="_blank" rel="noopener noreferrer" />
               }
