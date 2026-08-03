@@ -7,6 +7,7 @@ import {
   Mail,
   Settings,
   ClipboardCheck,
+  MessageSquare,
   type LucideIcon,
 } from "lucide-react"
 
@@ -18,6 +19,7 @@ export type PageKey =
   | "invoices"
   | "checklist"
   | "emails"
+  | "sms"
   | "settings"
 
 export interface NavItem {
@@ -29,6 +31,7 @@ export interface NavItem {
 export const navItems: NavItem[] = [
   { key: "dashboard", label: "Dashboard", icon: LayoutDashboard },
   { key: "rsvps", label: "RSVPs & Guests", icon: Users },
+  { key: "sms", label: "SMS Messages", icon: MessageSquare },
   { key: "menu", label: "Menu & Catering", icon: UtensilsCrossed },
   { key: "vendors", label: "Vendors", icon: Store },
   { key: "invoices", label: "Invoices", icon: ReceiptText },
