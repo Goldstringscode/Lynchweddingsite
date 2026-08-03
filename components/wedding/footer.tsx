@@ -17,7 +17,19 @@ export function Footer() {
       <p className="mt-2 font-sans text-xs tracking-widest text-gold">
         {wedding.hashtag}
       </p>
-      <div className="mt-8">
+      <div className="mt-6 flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
+        <Link
+          href="/privacy"
+          className="font-sans text-[0.6rem] uppercase tracking-[0.3em] text-muted-foreground/40 hover:text-[#355E3B] transition-colors"
+        >
+          Privacy Policy
+        </Link>
+        <Link
+          href="/terms"
+          className="font-sans text-[0.6rem] uppercase tracking-[0.3em] text-muted-foreground/40 hover:text-[#355E3B] transition-colors"
+        >
+          Terms &amp; Conditions
+        </Link>
         <Link
           href="/admin/login"
           className="font-sans text-[0.6rem] uppercase tracking-[0.3em] text-muted-foreground/40 hover:text-[#355E3B] transition-colors"
