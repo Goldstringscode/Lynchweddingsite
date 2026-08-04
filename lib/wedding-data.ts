@@ -16,7 +16,7 @@ export const wedding = {
   receptionAddress: "85-370 Terra Lago Parkway, Indio, CA 92203",
   dressCode: "Black Tie Event | An Evening Draped in Black",
   registryUrl: "https://www.honeyfund.com",
-  hashtag: "#NikkitaAndJustin2026",
+  hashtag: "#HouseofJusNik",
 }
 
 export type TimelineEvent = {
