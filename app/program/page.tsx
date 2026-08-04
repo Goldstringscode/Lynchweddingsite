@@ -142,6 +142,37 @@ export default function ProgramPage() {
             <OrnamentalRule />
           </div>
 
+          {/* Share-your-photos QR */}
+          <div className="mx-auto flex w-full max-w-xs flex-col items-center text-center">
+            <p className="font-sans text-[11px] uppercase tracking-[0.3em] text-primary">
+              Share Your Photos
+            </p>
+            <p className="mt-2 font-serif text-lg text-foreground">
+              Scan to upload your photos &amp; videos
+            </p>
+            <a
+              href="/share"
+              className="mt-5 block rounded-2xl border border-gold/40 bg-white p-4 shadow-sm transition hover:shadow-md"
+              aria-label="Open the photo sharing page"
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/share-qr.svg"
+                alt="QR code to upload wedding photos and videos"
+                className="size-44"
+                width={176}
+                height={176}
+              />
+            </a>
+            <p className="mt-4 font-sans text-xs text-muted-foreground">
+              Point your camera at the code — no app needed
+            </p>
+          </div>
+
+          <div className="my-10">
+            <OrnamentalRule />
+          </div>
+
           <p className="font-serif text-xl italic text-foreground">
             With love and gratitude
           </p>
