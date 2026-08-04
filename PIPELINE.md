@@ -21,7 +21,7 @@
 |-------|-------|
 | **Project URL** | `https://asnkchxmqanvdljzgshv.supabase.co` |
 | **Anon key** | `sb_publishable_5Mw0mpu6p4klt5FDZSnCqg_tKny0Uhy` |
-| **Service role key** | `sb_secret_tM5ALPnz-OOn2ukcRQaWIQ_cH80GyHm` |
+| **Service role key** | `SUPABASE_SERVICE_ROLE_KEY_FROM_ENV` |
 | **Schema** | `supabase-schema.sql` — full DDL + seed data |
 | **Tables** | `guests`, `vendors`, `invoices`, `vendor_deadlines`, `wedding_settings`, `wedding_checklist` |
 

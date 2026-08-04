@@ -1,8 +1,11 @@
 import { NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase-admin'
 import { sanitizeFields, vendorCreateSchema } from '@/lib/sanitize'
+import { authenticateAdmin } from '@/lib/auth'
 
 export async function GET() {
+  const authError = await authenticateAdmin()
+  if (authError) return authError
   const { data, error } = await supabaseAdmin
     .from('vendors')
     .select('*')
@@ -13,6 +16,8 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
+  const authError = await authenticateAdmin()
+  if (authError) return authError
   const body = await request.json()
 
   // Whitelist + type-check: only allow fields defined in vendorCreateSchema

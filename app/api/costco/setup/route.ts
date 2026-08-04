@@ -1,7 +1,10 @@
 import { NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/supabase-admin"
+import { authenticateAdmin } from '@/lib/auth'
 
 export async function POST() {
+  const authError = await authenticateAdmin()
+  if (authError) return authError
   try {
     // Create the costco_product_mappings table via raw SQL
     // Using supabaseAdmin which has service_role privileges

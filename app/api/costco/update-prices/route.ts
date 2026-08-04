@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/supabase-admin"
 import { getSearchQuery } from "@/lib/costco-mappings"
+import { authenticateAdmin } from '@/lib/auth'
 
 /**
  * Fetches current price for a product from Google Shopping via Serper.dev
@@ -88,6 +89,8 @@ function recalculateCost(ingredientList: any[]): { costPerServing: number; total
  * and updates all menu_items ingredient lists with new prices.
  */
 export async function POST() {
+  const authError = await authenticateAdmin()
+  if (authError) return authError
   const apiKey = process.env.SERPER_API_KEY
 
   if (!apiKey) {

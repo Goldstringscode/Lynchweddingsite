@@ -1,8 +1,11 @@
 import { NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase-admin'
 import { sanitizeFields, rsvpPatchSchema } from '@/lib/sanitize'
+import { authenticateAdmin } from '@/lib/auth'
 
 export async function PATCH(request: Request, { params }: { params: { id: string } }) {
+  const authError = await authenticateAdmin()
+  if (authError) return authError
   const body = await request.json()
 
   // Whitelist + type-check: only allow fields defined in rsvpPatchSchema

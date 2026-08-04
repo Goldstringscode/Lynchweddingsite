@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/supabase-admin"
+import { authenticateAdmin } from '@/lib/auth'
 
 export async function GET() {
+  const authError = await authenticateAdmin()
+  if (authError) return authError
   const { data, error } = await supabaseAdmin
     .from("buffet_items")
     .select("*")
@@ -15,6 +18,8 @@ export async function GET() {
 }
 
 export async function POST(request: NextRequest) {
+  const authError = await authenticateAdmin()
+  if (authError) return authError
   try {
     const body = await request.json()
     const { category, name, description, section, price_per_person, cost_per_serving,

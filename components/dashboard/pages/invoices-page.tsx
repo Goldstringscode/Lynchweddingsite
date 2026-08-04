@@ -33,9 +33,8 @@ export function InvoicesPage() {
     .reduce((sum, i) => sum + i.amount, 0)
 
   function handleDownload(invoice: Invoice) {
-    // Front-end only placeholder. Replace with a real download endpoint later.
-    console.log("[v0] Download invoice:", invoice.number)
-    window.alert(`Downloading ${invoice.number} for ${invoice.vendor}…`)
+    // Download not yet implemented — placeholder removed (button no longer rendered).
+    void invoice
   }
 
   return (
@@ -80,14 +79,7 @@ export function InvoicesPage() {
                     <InvoiceStatusBadge status={inv.status} />
                   </TableCell>
                   <TableCell className="pr-4 text-right">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleDownload(inv)}
-                    >
-                      <Download data-icon="inline-start" />
-                      Download
-                    </Button>
+                    <span className="text-xs text-muted-foreground">—</span>
                   </TableCell>
                 </TableRow>
               ))}

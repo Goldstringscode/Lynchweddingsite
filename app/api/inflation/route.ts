@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
+import { authenticateAdmin } from '@/lib/auth'
 
-const FRED_API_KEY = process.env.FRED_API_KEY || "02d615c1d8d5affe828a227cedb408d2"
+const FRED_API_KEY = process.env.FRED_API_KEY
 const CPI_SERIES_ID = "CPIAUCSL"
 const BASELINE_YEAR = 2026
 
@@ -65,6 +66,8 @@ function getCpiForYear(year: number, annualData: Record<number, number>): number
 }
 
 export async function GET(request: NextRequest) {
+  const authError = await authenticateAdmin()
+  if (authError) return authError
   const { searchParams } = new URL(request.url)
   const targetYear = parseInt(searchParams.get("year") || "")
   const targetMonth = parseInt(searchParams.get("month") || "6")

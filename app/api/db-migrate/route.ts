@@ -1,9 +1,12 @@
 import { NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/supabase-admin"
+import { authenticateAdmin } from '@/lib/auth'
 
 export const dynamic = "force-dynamic"
 
 export async function GET() {
+  const authError = await authenticateAdmin()
+  if (authError) return authError
   const sql = `
       CREATE TABLE IF NOT EXISTS wedding_settings (
         id INTEGER PRIMARY KEY DEFAULT 1,

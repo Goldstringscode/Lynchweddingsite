@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase-admin'
+import { authenticateAdmin } from '@/lib/auth'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
@@ -42,6 +43,8 @@ export async function POST(request: Request) {
 
 // GET /api/sms/status → recent messages + delivery statuses
 export async function GET() {
+  const authError = await authenticateAdmin()
+  if (authError) return authError
   try {
     const { data, error } = await supabaseAdmin
       .from('sms_messages')

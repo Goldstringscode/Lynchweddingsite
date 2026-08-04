@@ -12,6 +12,7 @@ import { ChecklistPage } from "./pages/checklist-page"
 import { CateringDashboard } from "./catering-dashboard"
 import { EmailsPage } from "./emails-page"
 import { SmsPage } from "./pages/sms-page"
+import { LaunchChecklistPage } from "./pages/launch-checklist-page"
 import type { PageKey } from "./nav"
 
 const pageMeta: Record<PageKey, { title: string; subtitle: string }> = {
@@ -46,6 +47,10 @@ const pageMeta: Record<PageKey, { title: string; subtitle: string }> = {
   sms: {
     title: "SMS Messages",
     subtitle: "Send text messages and website links to your guests.",
+  },
+  launch: {
+    title: "Launch Checklist",
+    subtitle: "Everything to verify before the site goes live.",
   },
   settings: {
     title: "Settings",
@@ -102,6 +107,7 @@ export function AdminDashboard() {
             {page === "checklist" && <ChecklistPage />}
             {page === "emails" && <EmailsPage />}
             {page === "sms" && <SmsPage />}
+            {page === "launch" && <LaunchChecklistPage />}
             {page === "settings" && <SettingsPage />}
           </div>
         </main>

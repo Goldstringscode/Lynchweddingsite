@@ -14,7 +14,7 @@ import time
 import math
 
 SUPABASE_URL = "https://asnkchxmqanvdljzgshv.supabase.co"
-SERVICE_KEY = "sb_secret_tM5ALPnz-OOn2ukcRQaWIQ_cH80GyHm"
+SERVICE_KEY = "SUPABASE_SERVICE_ROLE_KEY_FROM_ENV"
 
 def supabase_select(table, select="*"):
     url = f"{SUPABASE_URL}/rest/v1/{table}?select={urllib.parse.quote(select)}&limit=500"

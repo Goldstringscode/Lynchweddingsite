@@ -21,3 +21,7 @@ node_modules
 supabase/.temp/
 scout-fine-dining-data.js
 seed-fine-dining-items.js
+
+# Local audit/planning docs — may contain secrets if left raw
+AUDIT-SUMMARY.md
+PIPELINE.md

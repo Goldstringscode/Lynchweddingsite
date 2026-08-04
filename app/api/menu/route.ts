@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/supabase-admin"
+import { authenticateAdmin } from '@/lib/auth'
 
 export async function GET() {
+  const authError = await authenticateAdmin()
+  if (authError) return authError
   const { data, error } = await supabaseAdmin
     .from("menu_items")
     .select("*")
@@ -15,6 +18,8 @@ export async function GET() {
 }
 
 export async function POST(request: NextRequest) {
+  const authError = await authenticateAdmin()
+  if (authError) return authError
   try {
     const body = await request.json()
     const { category, name, description, price, sort_order, is_available } = body
@@ -37,6 +42,8 @@ export async function POST(request: NextRequest) {
 }
 
 export async function PUT(request: NextRequest) {
+  const authError = await authenticateAdmin()
+  if (authError) return authError
   try {
     const body = await request.json()
     const { id, category, name, description, price, sort_order, is_available } = body
@@ -68,6 +75,8 @@ export async function PUT(request: NextRequest) {
 }
 
 export async function DELETE(request: NextRequest) {
+  const authError = await authenticateAdmin()
+  if (authError) return authError
   const { searchParams } = new URL(request.url)
   const id = searchParams.get("id")
 

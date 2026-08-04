@@ -1,7 +1,10 @@
 import { NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase-admin'
+import { authenticateAdmin } from '@/lib/auth'
 
 export async function GET() {
+  const authError = await authenticateAdmin()
+  if (authError) return authError
   const { data: guests, error: gErr } = await supabaseAdmin.from('guests').select('*')
   if (gErr) return NextResponse.json({ error: gErr.message }, { status: 500 })
 

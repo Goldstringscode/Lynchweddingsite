@@ -13,7 +13,7 @@
 **Current:**
 ```
 NEXT_PUBLIC_SUPABASE_ANON_KEY=sb_publishable_5Mw0mpu6p4klt5FDZSnCqg_tKny0Uhy
-SUPABASE_SERVICE_ROLE_KEY=sb_secret_tM5ALPnz-OOn2ukcRQaWIQ_cH80GyHm
+SUPABASE_SERVICE_ROLE_KEY=SUPABASE_SERVICE_ROLE_KEY_FROM_ENV
 ```
 **Why it matters:** The `.env.local` file is committed to the git repo and uploaded to Vercel. The service role key BYPASSES ALL ROW LEVEL SECURITY, giving anyone who obtains it full admin access to the entire database (read/write all guests, vendors, invoices). The anon key is also exposed in client-side JS at runtime, which is normal — but the service key must NEVER be in a file that could ship to the browser OR be committed.
 

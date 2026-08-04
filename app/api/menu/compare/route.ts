@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/supabase-admin"
+import { authenticateAdmin } from '@/lib/auth'
 
 export async function GET(request: NextRequest) {
+  const authError = await authenticateAdmin()
+  if (authError) return authError
   const { searchParams } = new URL(request.url)
   const draftIds = searchParams.get("ids") // comma-separated UUIDs
   const inflationYear = parseInt(searchParams.get("inflationYear") || "0")

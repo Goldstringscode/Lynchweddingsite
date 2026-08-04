@@ -1,9 +1,12 @@
 import { NextRequest, NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/supabase-admin"
+import { authenticateAdmin } from '@/lib/auth'
 
 export const dynamic = "force-dynamic"
 
 export async function GET() {
+  const authError = await authenticateAdmin()
+  if (authError) return authError
   const { data, error } = await supabaseAdmin
     .from("wedding_settings")
     .select("*")
@@ -17,6 +20,8 @@ export async function GET() {
 }
 
 export async function PUT(request: NextRequest) {
+  const authError = await authenticateAdmin()
+  if (authError) return authError
   try {
     const body = await request.json()
     const { email_notifications, wedding_date } = body

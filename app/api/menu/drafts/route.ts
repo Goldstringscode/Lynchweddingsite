@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/supabase-admin"
+import { authenticateAdmin } from '@/lib/auth'
 
 export async function GET() {
+  const authError = await authenticateAdmin()
+  if (authError) return authError
   const { data, error } = await supabaseAdmin
     .from("menu_drafts")
     .select("*")
@@ -12,6 +15,8 @@ export async function GET() {
 }
 
 export async function POST(request: NextRequest) {
+  const authError = await authenticateAdmin()
+  if (authError) return authError
   try {
     const body = await request.json()
     const { name, description, event_type, guest_count, target_budget_per_person, courses } = body
@@ -41,6 +46,8 @@ export async function POST(request: NextRequest) {
 }
 
 export async function PUT(request: NextRequest) {
+  const authError = await authenticateAdmin()
+  if (authError) return authError
   try {
     const body = await request.json()
     const { id, name, description, guest_count, target_budget_per_person, courses, is_locked } = body
@@ -70,6 +77,8 @@ export async function PUT(request: NextRequest) {
 }
 
 export async function DELETE(request: NextRequest) {
+  const authError = await authenticateAdmin()
+  if (authError) return authError
   const { searchParams } = new URL(request.url)
   const id = searchParams.get("id")
   if (!id) return NextResponse.json({ error: "Missing id" }, { status: 400 })
