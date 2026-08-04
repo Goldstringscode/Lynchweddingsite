@@ -9,8 +9,10 @@
 ## 🚨 Critical (blocks launch)
 
 - [ ] **Verify guest list is clean** — seed/example guests deleted (13 removed 2026-08-04). Confirm only real guests remain in admin → RSVPs.
+- [x] **Authenticate all admin API routes** — DONE 2026-08-04. Signed-session auth now gates every admin API (401 unauthenticated, verified live).
 - [ ] **Create Honeyfund registry page** and replace the placeholder `registryUrl` in `lib/wedding-data.ts` (currently points to honeyfund.com homepage, not the real registry).
 - [ ] **A2P 10DLC campaign approval** — SMS to US carriers blocked until Twilio carrier review completes (IN_PROGRESS since 2026-08-03). Daily 9 AM cron watches; no action needed, but don't promise guests texts until APPROVED.
+- [ ] **ROTATE Supabase service-role key** — ⚠️ the live key was committed to repo history. Scrubbed from tracked files 2026-08-04, but you MUST generate a new key in Supabase dashboard and update Vercel env (`SUPABASE_SERVICE_ROLE_KEY`) to fully invalidate the old one. Only you can do this. Then optionally purge git history (`git filter-repo`/BFG).
 
 ## 📱 Photo Sharing (QR / WedUploader)
 
@@ -39,11 +41,11 @@
 
 ## 🔐 Admin & Security
 
-- [ ] Admin password strong (not default)
-- [ ] Admin dashboard renders light mode on all tabs
-- [ ] Supabase RLS enabled — guest data not publicly readable
-- [ ] No hardcoded secrets in repo (Twilio/Supabase creds via env only)
-- [ ] Test admin actions: RSVP check-in, guest edit, SMS send
+- [x] **Authenticate all admin API routes** — DONE 2026-08-04: every admin API returns 401 unauthenticated (verified live).
+- [x] **Secure admin session cookie** — DONE 2026-08-04: signed HMAC token (not static "authenticated"), forged cookies rejected, login rate-limited (5/15 min) + constant-time compare. Security headers added (CSP, X-Frame-Options, etc.).
+- [ ] **Rotate Supabase service-role key** (see Critical section) — user action required.
+- [x] **No hardcoded secrets in repo** — DONE 2026-08-04: leaked Supabase key + FRED key scrubbed; audit docs gitignored.
+- [ ] **Admin password strong** — not default, in env only.
 
 ## 💳 Money & Services
 
