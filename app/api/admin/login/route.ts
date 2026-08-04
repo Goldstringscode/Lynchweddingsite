@@ -58,7 +58,7 @@ export async function POST(request: Request) {
     console.log('login: password OK, signing token')
 
     // Set a signed session cookie — expires in 24 hours.
-    const token = signToken()
+    const token = await signToken()
     const cookieStore = await cookies()
     cookieStore.set(ADMIN_SESSION_COOKIE, token, {
       httpOnly: true,
