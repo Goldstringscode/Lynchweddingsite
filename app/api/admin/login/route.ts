@@ -29,40 +29,48 @@ function safeEqual(a: string, b: string): boolean {
 }
 
 export async function POST(request: Request) {
-  const body = await request.json()
-  const { password } = body
+  try {
+    const body = await request.json()
+    const { password } = body
 
-  const adminPassword = process.env.ADMIN_PASSWORD
+    const adminPassword = process.env.ADMIN_PASSWORD
 
-  if (!adminPassword) {
-    return NextResponse.json({ error: 'Admin password not configured' }, { status: 500 })
+    if (!adminPassword) {
+      return NextResponse.json({ error: 'Admin password not configured' }, { status: 500 })
+    }
+
+    // Rate-limit by IP to slow brute-force attacks.
+    const ip =
+      request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
+      request.headers.get('x-real-ip') ||
+      'unknown'
+    if (rateLimitExceeded(ip)) {
+      return NextResponse.json(
+        { error: 'Too many attempts. Try again in 15 minutes.' },
+        { status: 429 }
+      )
+    }
+
+    if (typeof password !== 'string' || !safeEqual(password, adminPassword)) {
+      return NextResponse.json({ error: 'Invalid password' }, { status: 401 })
+    }
+    // eslint-disable-next-line no-console
+    console.log('login: password OK, signing token')
+
+    // Set a signed session cookie — expires in 24 hours.
+    const token = signToken()
+    const cookieStore = await cookies()
+    cookieStore.set(ADMIN_SESSION_COOKIE, token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      path: '/',
+      maxAge: 60 * 60 * 24, // 24 hours
+    })
+
+    return NextResponse.json({ success: true })
+  } catch (err: any) {
+    console.error('login route error:', err?.message, err?.stack)
+    return NextResponse.json({ error: 'Internal error: ' + (err?.message || 'unknown') }, { status: 500 })
   }
-
-  // Rate-limit by IP to slow brute-force attacks.
-  const ip =
-    request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
-    request.headers.get('x-real-ip') ||
-    'unknown'
-  if (rateLimitExceeded(ip)) {
-    return NextResponse.json(
-      { error: 'Too many attempts. Try again in 15 minutes.' },
-      { status: 429 }
-    )
-  }
-
-  if (typeof password !== 'string' || !safeEqual(password, adminPassword)) {
-    return NextResponse.json({ error: 'Invalid password' }, { status: 401 })
-  }
-
-  // Set a signed session cookie — expires in 24 hours.
-  const cookieStore = await cookies()
-  cookieStore.set(ADMIN_SESSION_COOKIE, signToken(), {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax',
-    path: '/',
-    maxAge: 60 * 60 * 24, // 24 hours
-  })
-
-  return NextResponse.json({ success: true })
 }
