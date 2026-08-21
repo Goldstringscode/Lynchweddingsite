@@ -18,13 +18,22 @@ export async function POST() {
     const msgSid  = 'MG367b0d85f21a31f2379232122fb7ce24'  // Messaging Service
     const phoneSid = 'PNe5483979c99796ebdd37a89c95f6252a'  // +12137742802
 
-    // STEP 1: Ensure phone is assigned to messaging service FIRST
+    // STEP 1: Assign phone to messaging service FIRST
     try {
-      const phone = await client.incomingPhoneNumbers(phoneSid)
+      // First fetch current state
+      const phoneBefore = await client.incomingPhoneNumbers(phoneSid).fetch()
+      results.phone_before = { svc: phoneBefore.messagingServiceSid || 'none' }
+      
+      // Force assignment
+      await client.incomingPhoneNumbers(phoneSid)
         .update({ messagingServiceSid: msgSid })
+      
+      // Verify it stuck
+      const phoneAfter = await client.incomingPhoneNumbers(phoneSid).fetch()
       results.phone_assigned = {
-        number: phone.phoneNumber,
-        service: phone.messagingServiceSid === msgSid,
+        number: phoneAfter.phoneNumber,
+        service: phoneAfter.messagingServiceSid === msgSid,
+        actualSid: phoneAfter.messagingServiceSid || 'none',
       }
     } catch (e: any) {
       results.phone_error = e.message
@@ -61,7 +70,7 @@ export async function POST() {
             'Only to guests who provided phone + explicit consent on RSVP form.',
             'NOT marketing — purely operational wedding communications.',
           ].join(' '),
-          usAppToPersonUsecase: 'LOW_VOLUME',
+          usAppToPersonUsecase: 'SOLE_PROPRIETOR',  // Brand is Sole Proprietor — must match
           hasEmbeddedLinks: false,
           hasEmbeddedPhone: false,
           messageSamples: [
