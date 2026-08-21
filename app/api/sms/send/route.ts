@@ -1,3 +1,5 @@
+// Twilio SMS send route — sends via Messaging Service (A2P 10DLC compliant)
+// Env vars required: TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_MESSAGING_SERVICE_SID (or TWILIO_PHONE_NUMBER fallback)
 import { NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase-admin'
 import { authenticateAdmin } from '@/lib/auth'
