@@ -66,8 +66,10 @@ export function Rsvp() {
       } else {
         alert("Something went wrong submitting your RSVP. Please try again or contact the wedding planner.")
       }
-    } catch {
-      setSubmitted({ name, email, phone, guests, meal, guestMeal: guests === "2" ? guestMeal : null, dietary, attendance, code: accessCode })
+    } catch (err) {
+      // DO NOT call setSubmitted here — that silently pretends the RSVP succeeded.
+      // The guest would see a fake ticket with a QR code but nothing was saved.
+      alert("Unable to reach our server. Please check your connection and try again, or contact us directly.")
     }
     setTimeout(() => {
       document
