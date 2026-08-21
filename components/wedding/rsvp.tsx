@@ -400,7 +400,7 @@ function shareToMobile(data: RsvpData) {
   if (navigator.share) {
     navigator.share({
       title: `Wedding of ${wedding.brideFirst} & ${wedding.groomFirst}`,
-      text: `Join us to celebrate ${wedding.brideFirst} & ${wedding.groomFirst} on ${wedding.date} at ${wedding.ceremonyVenue}. Access Code: ${data.code}`,
+      text: `Join us to celebrate ${wedding.brideFirst} & ${wedding.groomFirst} on ${wedding.date} at ${wedding.ceremonyVenue}. Guest ID: ${data.code}`,
       url: window.location.href,
     }).catch(() => addToWallet(data))
   } else {
@@ -478,11 +478,30 @@ function Ticket({ data, onReset }: { data: RsvpData; onReset: () => void }) {
 
               <div>
                 <p className="font-sans text-[0.65rem] uppercase tracking-[0.3em] text-muted-foreground">
-                  Access Code
+                  Guest ID
                 </p>
                 <p className="mt-1 font-mono text-lg tracking-wider text-primary">
                   {data.code}
                 </p>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <p className="font-sans text-[0.65rem] uppercase tracking-[0.3em] text-muted-foreground">
+                    Gate Entry
+                  </p>
+                  <p className="mt-1 font-mono text-base tracking-wider text-foreground">
+                    #2026
+                  </p>
+                </div>
+                <div>
+                  <p className="font-sans text-[0.65rem] uppercase tracking-[0.3em] text-muted-foreground">
+                    Directory
+                  </p>
+                  <p className="mt-1 font-sans text-sm text-foreground">
+                    &ldquo;Wedding&rdquo; &mdash; 8397
+                  </p>
+                </div>
               </div>
             </div>
 
@@ -525,14 +544,6 @@ function Ticket({ data, onReset }: { data: RsvpData; onReset: () => void }) {
           >
             <Printer className="size-4" aria-hidden="true" />
             Download / Print Ticket
-          </Button>
-          <Button
-            onClick={() => shareToMobile(data)}
-            size="lg"
-            className="h-12 rounded-none bg-primary/90 px-8 font-sans text-sm uppercase tracking-[0.2em] text-primary-foreground hover:bg-primary/80 sm:hidden"
-          >
-            <TicketIcon className="size-4" aria-hidden="true" />
-            Add to Wallet
           </Button>
           <Button
             variant="outline"
