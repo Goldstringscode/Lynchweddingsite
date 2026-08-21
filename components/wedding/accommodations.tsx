@@ -1,9 +1,10 @@
 "use client"
 
-import { Hotel } from "lucide-react"
+import { Hotel, Home } from "lucide-react"
 import { Divider, Reveal } from "./decor"
 
 const HOTEL_URL = "https://www.hilton.com/en/hampton/" // ← update when room block link is ready
+const AIRBNB_URL = "https://www.airbnb.com/wishlists/viewonly/fd7e382a-8210-4183-a2ce-dc8156199242?s=67&unique_share_id=6d7da461-8150-424c-a46c-74d49a04456c"
 
 export function Accommodations() {
   return (
@@ -35,6 +36,16 @@ export function Accommodations() {
           >
             <Hotel className="size-4 shrink-0" aria-hidden="true" />
             <span>Book Hotel Room</span>
+          </a>
+
+          <a
+            href={AIRBNB_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-4 inline-flex h-auto min-h-12 w-full max-w-xs items-center justify-center gap-2 rounded-none border border-primary bg-transparent px-6 py-3 font-sans text-xs uppercase tracking-[0.2em] text-primary transition-colors hover:bg-accent sm:w-auto sm:px-10 sm:text-sm"
+          >
+            <Home className="size-4 shrink-0" aria-hidden="true" />
+            <span>Book AirBnB</span>
           </a>
 
           <p className="mt-6 font-sans text-xs text-muted-foreground">
