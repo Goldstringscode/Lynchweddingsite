@@ -16,52 +16,52 @@ export async function POST() {
 
     const phoneSid = 'PNe5483979c99796ebdd37a89c95f6252a'
     const msgSid = 'MG367b0d85f21a31f2379232122fb7ce24'
-    const brandRegSid = 'BN49efd1b2f418dccb5e7cc63cf941e8cf'
+    const campaignSid = 'QE2c6890da8086d771620e9b13fadeba0b'
 
-    // Step 1: Check if old brand registration still exists
+    // Step 1: Force assign phone to messaging service
     try {
-      const endpoints = await client.trusthub.v1.endUserTypes.list({ limit: 5 })
-      results.endpoints_sample = endpoints.length
-    } catch (e: any) {
-      results.endpoint_error = e.message
-    }
-
-    // Step 2: Try creating campaign with the BN (brand registration) SID from setup script
-    try {
-      const campaign = await client.messaging.v1
-        .services(msgSid)
-        .usAppToPerson
-        .create({
-          brandRegistrationSid: brandRegSid,
-          description: 'Wedding RSVP confirmations and event reminders for guests who opt in via website. Sole proprietor.',
-          usAppToPersonUsecase: 'SOLE_PROPRIETOR',
-          hasEmbeddedLinks: true,
-          hasEmbeddedPhone: false,
-          messageSamples: [
-            'Thank you for your RSVP! We look forward to celebrating with you on Sept 26. Reply STOP to opt out.',
-            'Reminder: Nikkita & Justin wedding this Saturday at 4 PM. See houseoflynch.app. Reply STOP to opt out.',
-          ],
-          messageFlow: 'Guests opt in by providing phone number on RSVP form at houseoflynch.app. They receive a confirmation message after RSVP. A reminder is sent before the wedding. Guests can reply STOP to opt out at any time.',
-        })
-      results.campaign = {
-        sid: campaign.sid,
-        campaignStatus: campaign.campaignStatus,
-      }
-    } catch (e: any) {
-      results.campaign_error = e.message
-      results.campaign_error_code = e.code
-      if (e.moreInfo) results.campaign_more_info = e.moreInfo
-    }
-
-    // Step 3: Check if phone is on messaging service
-    try {
+      await client.incomingPhoneNumbers(phoneSid)
+        .update({ messagingServiceSid: msgSid })
       const phone = await client.incomingPhoneNumbers(phoneSid).fetch()
       results.phone = {
-        messagingServiceSid: phone.messagingServiceSid,
-        sms: phone.capabilities.sms,
+        number: phone.phoneNumber,
+        serviceAssigned: phone.messagingServiceSid === msgSid,
       }
     } catch (e: any) {
       results.phone_error = e.message
+    }
+
+    // Step 2: Check campaign status
+    try {
+      const campaign = await client.messaging.v1
+        .services(msgSid)
+        .usAppToPerson(campaignSid)
+        .fetch()
+      results.campaign = {
+        sid: campaign.sid,
+        status: campaign.campaignStatus,
+      }
+    } catch (e: any) {
+      results.campaign_error = e.message
+    }
+
+    // Step 3: Send a TEST SMS
+    try {
+      const sent = await client.messages.create({
+        messagingServiceSid: msgSid,
+        body: '✅ Twilio A2P campaign active! Your wedding SMS is now fully operational. Reply STOP to opt out.',
+        to: '+14795307328',
+        statusCallback: 'https://houseoflynch.app/api/sms/status',
+      })
+      results.test_sms = {
+        sid: sent.sid,
+        status: sent.status,
+        errorCode: sent.errorCode,
+        errorMessage: sent.errorMessage,
+      }
+    } catch (e: any) {
+      results.test_sms_error = e.message
+      results.test_sms_code = e.code
     }
 
     return NextResponse.json(results)
