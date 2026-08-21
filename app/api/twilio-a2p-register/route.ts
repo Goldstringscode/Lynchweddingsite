@@ -15,49 +15,50 @@ export async function POST() {
     const client = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN)
     const msgSid = 'MG367b0d85f21a31f2379232122fb7ce24'
     const phoneSid = 'PNe5483979c99796ebdd37a89c95f6252a'
+    const brandSid = 'BN49efd1b2f418dccb5e7cc63cf941e8cf'
 
-    // Step 1: Delete the FAILED campaign
+    // Step 1: Clean failed campaigns
     const existing = await client.messaging.v1.services(msgSid).usAppToPerson.list()
+    results.cleaned = []
     for (const c of existing) {
       await client.messaging.v1.services(msgSid).usAppToPerson(c.sid).remove()
-      results.removed = c.sid
+      results.cleaned.push(c.sid)
     }
 
-    // Step 2: Assign phone to messaging service
-    await client.incomingPhoneNumbers(phoneSid).update({ messagingServiceSid: msgSid })
-    results.phone_assigned = true
+    // Step 2: Assign phone to service with retry
+    for (let i = 0; i < 3; i++) {
+      await client.incomingPhoneNumbers(phoneSid).update({ messagingServiceSid: msgSid })
+      const phone = await client.incomingPhoneNumbers(phoneSid).fetch()
+      if (phone.messagingServiceSid === msgSid) {
+        results.phone_assigned = true
+        break
+      }
+    }
 
-    // Step 3: Create campaign with STARTER template (matches what the console showed)
-    // Console showed: "Starter" use case, BN49efd brand approved
+    // Step 3: Create SOLE_PROPRIETOR campaign
     const campaign = await client.messaging.v1.services(msgSid).usAppToPerson.create({
-      brandRegistrationSid: 'BN49efd1b2f418dccb5e7cc63cf941e8cf',
-      description: 'Wedding RSVP confirmations and event reminders for guests who opted in via houseoflynch.app. Sole proprietor. Opt-in only. Reply STOP to unsubscribe.',
-      usAppToPersonUsecase: 'STARTER',
+      brandRegistrationSid: brandSid,
+      description: 'Wedding RSVP confirmations and event reminders for guests who opted in via houseoflynch.app RSVP form. Sole proprietor. Not marketing — opt-in only operational messages. Reply STOP to unsubscribe.',
+      usAppToPersonUsecase: 'SOLE_PROPRIETOR',
       hasEmbeddedLinks: false,
       hasEmbeddedPhone: false,
       messageSamples: [
-        'Thank you for your RSVP! See houseoflynch.app for details. Reply STOP to opt out.',
-        'Wedding reminder: Tomorrow 4PM. Four Seasons Terra Lago. Reply STOP to opt out.',
+        'Thank you for your RSVP, {Name}! We look forward to celebrating with you on Sept 26. Reply STOP to opt out.',
+        'Wedding reminder: Nikkita & Justin this Saturday at 4 PM. Four Seasons Terra Lago, Indio. Reply STOP to opt out.',
       ],
-      messageFlow: 'Guest provides phone on RSVP form at houseoflynch.app and consents to text messages. Couple manually sends confirmations and reminders. Guest can reply STOP to opt out.',
+      messageFlow: 'Guest provides phone number and explicitly consents to wedding text messages on the RSVP form at houseoflynch.app. Couple manually sends confirmation and reminder messages through the admin dashboard. Guest can reply STOP to opt out at any time.',
     })
 
-    results.campaign = {
-      sid: campaign.sid,
-      status: campaign.campaignStatus,
-      useCase: 'STARTER',
-    }
+    results.campaign = { sid: campaign.sid, status: campaign.campaignStatus }
 
-    // Step 4: If campaign created, send test SMS
-    if (results.campaign) {
-      const sent = await client.messages.create({
-        messagingServiceSid: msgSid,
-        body: '✅ Wedding SMS. Reply STOP to opt out.',
-        to: '+14795307328',
-        statusCallback: 'https://houseoflynch.app/api/sms/status',
-      })
-      results.test = { sid: sent.sid, status: sent.status, error: sent.errorCode }
-    }
+    // Step 4: Send test
+    const sent = await client.messages.create({
+      messagingServiceSid: msgSid,
+      body: '✅ Wedding SMS. Reply STOP to opt out.',
+      to: '+14795307328',
+      statusCallback: 'https://houseoflynch.app/api/sms/status',
+    })
+    results.test = { sid: sent.sid, status: sent.status, error: sent.errorCode }
 
     return NextResponse.json(results)
   } catch (e: any) {
