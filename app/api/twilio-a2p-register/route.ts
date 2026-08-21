@@ -12,54 +12,75 @@ export async function POST() {
 
   try {
     const twilio = require('twilio')
-    const client = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN)
+    const sid = process.env.TWILIO_ACCOUNT_SID!
+    const token = process.env.TWILIO_AUTH_TOKEN!
+    const client = twilio(sid, token)
 
-    const messagingService = process.env.TWILIO_MESSAGING_SERVICE_SID
-    const phoneNumber = process.env.TWILIO_PHONE_NUMBER
+    const phoneSid = 'PNe5483979c99796ebdd37a89c95f6252a'
+    const messagingSid = 'MG367b0d85f21a31f2379232122fb7ce24'
+    const trustProductSid = 'BU401a2703ec03dc76d7e30da1e1126156'
 
-    // Step 1: Check if a campaign already exists for this messaging service
+    // Step 1: Register the approved Trust Product as a Brand
     try {
-      const existing = await client.messaging.v1.usAppToPerson.list({ limit: 10 })
-      results.existing_campaigns = existing.map((c: any) => ({
-        sid: c.sid,
-        status: c.campaignStatus,
-        messagingServiceSid: c.messagingServiceSid,
-      }))
+      const brand = await client.trusthub.v1.trustProducts(trustProductSid)
+        .update({ status: 'complete' })
+      results.brand_update = { sid: brand.sid, status: brand.status }
     } catch (e: any) {
-      results.existing_check = 'No campaigns found or API error: ' + e.message
+      results.brand_update_error = e.message
     }
 
-    // Step 2: Use approved Trust Product "Lynch Wedding"
-    const trustProductSid = 'BU401a2703ec03dc76d7e30da1e1126156' // TWILIO-APPROVED
-
-    // Step 3: Create Secondary Customer Profile (SCP)
-    // The US A2P flow requires: Trust Product → Secondary Customer Profile → Campaign
+    // Step 2: Create Customer Profile for A2P
     try {
-      // Create Secondary Customer Profile
-      const scp = await client.trusthub.v1.customerProfiles.create({
-        email: 'jstringscode@gmail.com',
-        friendlyName: 'Lynch Wedding Campaign Profile',
-        policySid: 'RNdfbf3fae0e1107f8ded2d079c00ee187', // A2P standard policy
-        statusCallback: 'https://houseoflynch.app/api/sms/status',
-      })
-      results.customer_profile = { sid: scp.sid, status: scp.status }
+      // Check existing customer profiles
+      const profiles = await client.trusthub.v1.customerProfiles.list({ limit: 10 })
+      results.existing_profiles = profiles.map((p: any) => ({
+        sid: p.sid,
+        name: p.friendlyName,
+        status: p.status,
+      }))
+
+      // Create new if needed
+      if (!profiles.length || !profiles.find((p: any) => p.status === 'complete')) {
+        const cp = await client.trusthub.v1.customerProfiles.create({
+          email: 'jstringscode@gmail.com',
+          friendlyName: 'Lynch Wedding',
+          policySid: 'RNdfbf3fae0e1107f8ded2d079c00ee187',
+        })
+        results.customer_profile = { sid: cp.sid, status: cp.status }
+      }
     } catch (e: any) {
       results.customer_profile_error = e.message
     }
 
-    // Step 4: Create A2P campaign using the Messaging Service SID
+    // Step 3: Assign phone to messaging service (core fix for error 30034)
     try {
-      const campaign = await client.messaging.v1.usAppToPerson.create({
-        brandRegistrationSid: trustProductSid,
-        description: 'Wedding RSVP confirmations, event reminders, and thank-you messages sent to wedding guests who explicitly opted in via the RSVP form on houseoflynch.app. Guests can text STOP to opt out at any time.',
-        hasEmbeddedLinks: true,
-        hasEmbeddedPhone: false,
-        messageSamples: [
-          "Thank you for your RSVP! We're excited to celebrate with you. Reply STOP to opt out.",
-        ],
-        messageFlow: 'Guest opts in by providing phone number on the RSVP form at houseoflynch.app. After RSVP, they receive a confirmation message. Week-of reminders are sent. Guests can reply STOP to opt out anytime.',
-        usAppToPersonUsecase: 'SOLE_PROPRIETOR',
-      })
+      const updated = await client.incomingPhoneNumbers(phoneSid)
+        .update({ messagingServiceSid: messagingSid })
+      results.phone_to_service = {
+        sid: updated.sid,
+        messagingServiceSid: updated.messagingServiceSid,
+      }
+    } catch (e: any) {
+      results.phone_to_service_error = e.message
+    }
+
+    // Step 4: Register A2P campaign under the messaging service
+    try {
+      const campaign = await client.messaging.v1
+        .services(messagingSid)
+        .usAppToPerson
+        .create({
+          brandRegistrationSid: trustProductSid,
+          description: 'Wedding RSVP confirmations and event reminders sent to guests who opt in via houseoflynch.app RSVP form. Guests can reply STOP to opt out at any time. Sole proprietor.',
+          usAppToPersonUsecase: 'SOLE_PROPRIETOR',
+          hasEmbeddedLinks: true,
+          hasEmbeddedPhone: false,
+          messageSamples: [
+            'Thank you for your RSVP! We look forward to celebrating with you. Reply STOP to opt out.',
+            'Reminder: Wedding this Saturday at 4 PM. See houseoflynch.app for details. Reply STOP to opt out.',
+          ],
+          messageFlow: 'Guest opts in by providing phone number on RSVP form at houseoflynch.app. Receives confirmation message after RSVP. Week-of reminder sent before wedding. Guest can text STOP to opt out at any time.',
+        })
       results.campaign = {
         sid: campaign.sid,
         status: campaign.campaignStatus,
@@ -67,19 +88,7 @@ export async function POST() {
     } catch (e: any) {
       results.campaign_error = e.message
       if (e.code) results.campaign_error_code = e.code
-    }
-
-    // Step 5: If campaign exists, assign phone to messaging service
-    if (messagingService && phoneNumber) {
-      try {
-        const phoneSid = 'PNe5483979c99796ebdd37a89c95f6252a'
-        await client.incomingPhoneNumbers(phoneSid).update({
-          messagingServiceSid: messagingService,
-        })
-        results.phone_assigned = true
-      } catch (e: any) {
-        results.phone_assignment_error = e.message
-      }
+      if (e.moreInfo) results.campaign_more_info = e.moreInfo
     }
 
     return NextResponse.json(results)
