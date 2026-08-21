@@ -12,77 +12,66 @@ export async function POST() {
 
   try {
     const twilio = require('twilio')
-    const sid = process.env.TWILIO_ACCOUNT_SID!
-    const token = process.env.TWILIO_AUTH_TOKEN!
-    const client = twilio(sid, token)
+    const client = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN)
     const msgSid = 'MG367b0d85f21a31f2379232122fb7ce24'
     const phoneSid = 'PNe5483979c99796ebdd37a89c95f6252a'
-    const customerProfileSid = 'BU670ae9c0fdad9af327ac59eabd0e4ffe' // "Jstrings" — twilio-approved
+    const brandRegSid = 'BN49efd1b2f418dccb5e7cc63cf941e8cf'
 
-    // Check ALL campaigns for details on why they failed
+    // Check for any existing campaigns
     try {
-      const campaigns = await client.messaging.v1
-        .services(msgSid)
-        .usAppToPerson
-        .list()
-      results.campaigns = campaigns.map((c: any) => ({
-        sid: c.sid,
-        status: c.campaignStatus,
-        brandSid: c.brandRegistrationSid,
-      }))
+      const existing = await client.messaging.v1.services(msgSid).usAppToPerson.list()
+      for (const c of existing) {
+        if (c.campaignStatus === 'FAILED') {
+          await client.messaging.v1.services(msgSid).usAppToPerson(c.sid).remove()
+          results.cleaned = c.sid
+        }
+      }
     } catch (e: any) {
-      results.campaigns_error = e.message
+      results.clean_error = e.message
     }
 
-    // Step 1: Delete failed campaign
-    const failedSid = 'QE2c6890da8086d771620e9b13fadeba0b'
-    try {
-      await client.messaging.v1.services(msgSid).usAppToPerson(failedSid).remove()
-      results.deleted = failedSid
-    } catch (e: any) {
-      results.delete_error = e.message
-    }
-
-    // Step 2: Create NEW campaign with Customer Profile as brand (for SOLE_PROPRIETOR low-volume)
+    // Create campaign with LOW_VOLUME use case and all required fields
     try {
       const campaign = await client.messaging.v1
         .services(msgSid)
         .usAppToPerson
         .create({
-          brandRegistrationSid: customerProfileSid,
-          description: 'Wedding RSVP confirmations and event reminders for guests who opt in via the RSVP form at houseoflynch.app. Sole proprietor. NOT marketing — opt-in only.',
+          brandRegistrationSid: brandRegSid,
+          description: 'Wedding event communications. Sole proprietor sending RSVP confirmations and event reminders to wedding guests who provided their phone number and explicit consent via the RSVP form at houseoflynch.app. Opt-in only — no marketing.',
           usAppToPersonUsecase: 'LOW_VOLUME',
-          hasEmbeddedLinks: true,
+          hasEmbeddedLinks: false,
           hasEmbeddedPhone: false,
           messageSamples: [
-            'You are confirmed for the wedding! Reply STOP to unsubscribe.',
-            'Wedding reminder: See you tomorrow at 4pm! Reply STOP to opt out.',
+            'Thank you for your RSVP! We look forward to celebrating with you on Sept 26. Reply STOP to unsubscribe.',
+            'Reminder: Wedding tomorrow at 4 PM. Reply STOP to opt out.',
+            'Wedding update: See houseoflynch.app for details. Reply STOP to unsubscribe.',
           ],
-          messageFlow: 'Guests opt in by providing their phone number on the RSVP form at houseoflynch.app. They receive an RSVP confirmation message. A wedding-day reminder is sent. Guests can text STOP to opt out at any time. Messages are triggered manually by the couple through the admin dashboard.',
+          messageFlow: '1. Guest visits houseoflynch.app and fills out RSVP form. 2. Guest provides their name, email, and phone number. 3. By submitting the form, guest explicitly consents to receive wedding-related text messages. 4. Couple sends RSVP confirmations and event reminders through the admin dashboard. 5. Guest can reply STOP at any time to opt out of future messages. All messages are sent manually by the couple — no automated campaigns.',
         })
-      results.campaign = { sid: campaign.sid, status: campaign.campaignStatus }
+      results.campaign = {
+        sid: campaign.sid,
+        status: campaign.campaignStatus,
+      }
     } catch (e: any) {
       results.campaign_error = e.message
       results.campaign_error_code = e.code
-      if (e.moreInfo) results.campaign_more_info = e.moreInfo
-      if (e.details) results.campaign_details = e.details
+      results.campaign_more_info = e.moreInfo
     }
 
-    // Step 3: Assign phone to messaging service
+    // Assign phone
     try {
-      await client.incomingPhoneNumbers(phoneSid)
-        .update({ messagingServiceSid: msgSid })
+      await client.incomingPhoneNumbers(phoneSid).update({ messagingServiceSid: msgSid })
       results.phone_assigned = true
     } catch (e: any) {
       results.phone_error = e.message
     }
 
-    // Step 4: Send test SMS if campaign created
+    // Test SMS
     if (results.campaign) {
       try {
         const sent = await client.messages.create({
           messagingServiceSid: msgSid,
-          body: '✅ Wedding SMS test — pipeline active. Reply STOP to opt out.',
+          body: '✅ Wedding SMS active. Reply STOP to opt out.',
           to: '+14795307328',
           statusCallback: 'https://houseoflynch.app/api/sms/status',
         })
