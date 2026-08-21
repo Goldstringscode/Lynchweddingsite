@@ -20,9 +20,12 @@ export function getSupabaseAdmin() {
   return adminInstance
 }
 
-// Convenience export — proxy defers client creation until first use
+// Convenience export — defers client creation until first use.
+// If env vars are missing, the error surfaces at call time with a clear message
+// rather than silently returning a broken client.
 export const supabaseAdmin = new Proxy({} as ReturnType<typeof createClient>, {
   get(_, prop) {
-    return getSupabaseAdmin()[prop as keyof ReturnType<typeof createClient>]
+    const client = getSupabaseAdmin()
+    return client[prop as keyof ReturnType<typeof createClient>]
   }
 })

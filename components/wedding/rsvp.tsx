@@ -102,7 +102,7 @@ export function Rsvp() {
           </h2>
           <Divider className="mt-6" />
           <p className="mx-auto mt-6 max-w-md font-sans text-sm leading-relaxed text-muted-foreground">
-            Please respond by August 1st, 2026. We can&apos;t wait to celebrate
+            Please respond by September 1st, 2026. We can&apos;t wait to celebrate
             with you.
           </p>
         </Reveal>
@@ -318,14 +318,28 @@ export function Rsvp() {
 }
 
 function generateICS(data: RsvpData) {
-  const dateStr = "20260926"
+  // Parse wedding date dynamically from wedding-data
+  const dateParts = wedding.date.match(/(\w+),?\s+(\w+)\s+(\d+),?\s+(\d{4})/)
+  let dateStr = "20260926"  // fallback
+  if (dateParts) {
+    const months: Record<string, string> = {
+      January: "01", February: "02", March: "03", April: "04",
+      May: "05", June: "06", July: "07", August: "08",
+      September: "09", October: "10", November: "11", December: "12"
+    }
+    const month = months[dateParts[2]] || "09"
+    const day = dateParts[3].padStart(2, "0")
+    const year = dateParts[4]
+    dateStr = year + month + day
+  }
+
   const startTime = "160000"
   const endTime = "234500"
   const now = new Date().toISOString().replace(/[-:]/g, "").split(".")[0] + "Z"
 
   const location = "Four Seasons at Terra Lago, 85-370 Terra Lago Parkway, Indio, CA 92203"
   const summary = `Wedding of ${wedding.brideFirst} & ${wedding.groomFirst}`
-  const desc = `You are cordially invited to celebrate the wedding of ${wedding.brideName} & ${wedding.groomName}.\n\nDress Code: ${wedding.dressCode}\nAccess Code: ${data.code}\n\nCeremony: 4:00 PM\nCocktail Hour: 5:00 PM\nReception: 5:45 PM\nFirst Dance: 6:30 PM\nDinner: 7:00 PM\nDancing & Celebration: 7:30 PM`
+  const desc = `You are cordially invited to celebrate the wedding of ${wedding.brideName} & ${wedding.groomName}.\n\nDress Code: ${wedding.dressCode}\nGuest ID: ${data.code}\n\nCeremony: 4:00 PM\nCocktail Hour: 5:00 PM\nReception: 5:45 PM\nFirst Dance: 6:30 PM\nDinner: 7:00 PM\nDancing & Celebration: 7:30 PM\n\nGate Entry: #2026\nDirectory: "Wedding" — 8397`
 
   return [
     "BEGIN:VCALENDAR",

@@ -27,9 +27,10 @@ const securityHeaders = [
 
 const nextConfig = {
   typescript: {
-    // Required: Next.js 14.x node_modules type errors (not our code)
-    ignoreBuildErrors: true,
-  },
+      // Next.js 14.x — node_modules type errors (not our code) can false-fail the build.
+      // Enable for CI when dependencies are pinned and verified.
+      ignoreBuildErrors: true,
+    },
   images: {
     unoptimized: true,
   },

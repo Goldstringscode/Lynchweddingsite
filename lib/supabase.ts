@@ -19,9 +19,11 @@ export function getSupabase() {
   return supabaseInstance
 }
 
-// Convenience export for direct use in route handlers
+// Convenience export — defers client creation until first use
+// If env vars are missing, error surfaces at call time with clear message
 export const supabase = new Proxy({} as ReturnType<typeof createClient>, {
   get(_, prop) {
-    return getSupabase()[prop as keyof ReturnType<typeof createClient>]
+    const client = getSupabase()
+    return client[prop as keyof ReturnType<typeof createClient>]
   }
 })
