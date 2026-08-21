@@ -309,6 +309,57 @@
 *End of Awwwards Design Reference — v1.0*
 *Next: Revisit for deep JS/motion/function analysis*
 
+---
+
+## ═══════════════════════════════════════════
+## UPDATE 2026-08-02 — NEW MAJOR PATTERNS (batch #2)
+## ═══════════════════════════════════════════
+**Source:** https://www.awwwards.com/websites/sites_of_the_day/ pages 1–2
+**Full detail in:** scout/awwwards-daily-2026-08-02.md
+
+### 1. Pure-CSS Sticker/Peel Effect (CRAV Burgers)
+- Custom properties drive a no-JS sticker flap: `--sticker-rotate:30deg; --sticker-p:20%; --peel-direction:0deg; --peel-amount:1; --sticker-start:calc(-1*var(--sticker-p))`
+- → adopt for promo badges / "limited" tags / save-the-date stickers
+
+### 2. Character-Split Headings (PP Neue Montreal, MONOLOG, TRIONN)
+- Every heading → per-letter `<span class="char">` for staggered scroll/hover reveal
+- `gsap.from('.char', {yPercent:110, stagger:.02})`
+
+### 3. Tab-Based Single-Page Architecture (Wembi)
+- WHAT/HOW/WHY/WHERE tabs replace multi-page nav; numbered `N.00X` section labels
+- Great for B2B / services / data-dense layouts
+
+### 4. Pastel-Tech Color Trend
+- acid green #beff8b, lavender #E5DDF9, warm sand #E1D6CE, ivory #F1EDE7, steel #9dbbc5 — all paired with near-black; outlier palettes that land Creativity 7.5–8.4
+
+### 5. Shader Set-Pieces (The Power of Storytelling, 7.87)
+- 3D glass phoenix hero, water-reflection contact, mouse-interaction shaders, crystal project nav, bird fly-through
+- Highest-score site of batch → shader craft is the creativity multiplier
+
+### 6. Paper-Curl WebGL Page Transition (Hearst Exhibit)
+- Editorial pages physically curl when navigating; combine with List⇄Grid gallery toggle
+
+### 7. Loader as Brand Moment (CRAV, Noomo)
+- Preloader animates the product itself (burger assembly) or transitions preloader→hero
+
+### 8. Outcomes-As-Headlines (MONOLOG)
+- Case cards feature results as the headline: "21% conversions", "58% session", "$100K+ in 30 days"
+- Modal-on-load about + sound-effect toggle + statement-only hero
+
+### 9. Custom FPS Profiler Overlay via CSS Vars (Noomo)
+- `--profiler-bg, --color-fps, --color-call` — dev tooling surfaced in design system
+
+### 10. Brand-As-Arcade-Game (Lacoste Ace Breaker, Dev 7.81 / Anim 9.2)
+- Playable brick-breaker where wins = real prizes (Roland Garros tickets); 2-color brand palette in game UI
+
+### Updated Tech-Stack Signal
+- Frameworks: Nuxt.js+Craft CMS, Webflow, Framer, 11ty (Eleventy), Vercel+GSAP+WebGL, HTML5 custom
+- GSAP + Three/WebGL still dominant; no-code (Webflow/Framer) now common in SOTD
+- Food/luxury B/W+accent still the safest high-score formula
+
+*Reference v2.0 — patterns cumulatively growing across batches*
+*Next: Revisit for deep JS/motion/function analysis*
+
 ## ═══════════════════════════════════════════
 ## SITE 11: Normal is Boring (SOTD Jul 23, 2026)
 ## ═══════════════════════════════════════════

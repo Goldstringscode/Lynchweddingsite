@@ -1,5 +1,4 @@
 import { Download } from "lucide-react"
-import { Button } from "@/components/ui/button"
 import { CornerAccents, Divider, Reveal } from "./decor"
 
 export function Program() {
@@ -23,17 +22,15 @@ export function Program() {
               as a PDF or print it to keep close.
             </p>
 
-            <Button
-              size="lg"
-              nativeButton={false}
-              className="mt-10 h-auto min-h-14 w-full max-w-sm rounded-none bg-primary px-8 py-4 font-sans text-xs uppercase tracking-[0.2em] text-primary-foreground hover:bg-primary/90 sm:w-auto sm:px-12 sm:text-sm"
-              render={
-                <a href="/program" target="_blank" rel="noopener noreferrer" />
-              }
+            <a
+              href="/program"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-10 inline-flex h-auto min-h-14 w-full max-w-sm items-center justify-center gap-2 rounded-none bg-primary px-8 py-4 font-sans text-xs uppercase tracking-[0.2em] text-primary-foreground transition-colors hover:bg-primary/90 sm:w-auto sm:px-12 sm:text-sm"
             >
               <Download className="size-4 shrink-0" aria-hidden="true" />
               <span>Download Wedding Program</span>
-            </Button>
+            </a>
           </div>
         </Reveal>
       </div>
