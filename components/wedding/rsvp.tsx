@@ -173,7 +173,7 @@ export function Rsvp() {
                   required
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  placeholder="Nikkita Rodgers"
+                  placeholder="First and Last Name"
                   className="rounded-none border-input focus-visible:ring-primary"
                 />
               </div>
