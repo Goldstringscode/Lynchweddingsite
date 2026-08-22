@@ -1,8 +1,9 @@
 "use client"
 
-import { Clock, MapPin, Calendar, Shirt } from "lucide-react"
+import { Clock, MapPin, Calendar, Shirt, Download } from "lucide-react"
 import { wedding } from "@/lib/wedding-data"
 import { CornerAccents, Divider, Reveal } from "./decor"
+import { printSection } from "@/lib/print"
 
 function DetailRow({
   icon: Icon,
@@ -109,6 +110,16 @@ export function Invitation() {
                     />
                   </div>
                 </div>
+              </div>
+            {/* Download button — hidden when printing */}
+              <div className="no-print mt-12 flex justify-center">
+                <button
+                  onClick={() => printSection("print-invitation")}
+                  className="inline-flex h-12 items-center gap-2 rounded-none bg-primary px-8 font-sans text-sm uppercase tracking-[0.2em] text-primary-foreground transition-colors hover:bg-primary/90"
+                >
+                  <Download className="size-4 shrink-0" aria-hidden="true" />
+                  <span>Download Invitation</span>
+                </button>
               </div>
             </div>
           </div>

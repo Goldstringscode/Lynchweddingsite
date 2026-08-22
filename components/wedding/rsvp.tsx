@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
+import { printSection } from "@/lib/print"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { wedding } from "@/lib/wedding-data"
 import { Divider, Reveal } from "./decor"
@@ -552,7 +553,7 @@ function Ticket({ data, onReset }: { data: RsvpData; onReset: () => void }) {
         </p>
         <div className="flex flex-wrap justify-center gap-3">
           <Button
-            onClick={() => window.print()}
+            onClick={() => printSection("print-ticket")}
             size="lg"
             className="h-12 rounded-none bg-primary px-8 font-sans text-sm uppercase tracking-[0.2em] text-primary-foreground hover:bg-primary/90"
           >
