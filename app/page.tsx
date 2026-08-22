@@ -1,3 +1,4 @@
+import { Nav } from "@/components/wedding/nav"
 import { Hero } from "@/components/wedding/hero"
 import { Invitation } from "@/components/wedding/invitation"
 import { Itinerary } from "@/components/wedding/itinerary"
@@ -11,6 +12,7 @@ import { Footer } from "@/components/wedding/footer"
 export default function Page() {
   return (
     <main className="min-h-screen bg-background">
+      <Nav />
       <Hero />
       <Invitation />
       <Itinerary />
