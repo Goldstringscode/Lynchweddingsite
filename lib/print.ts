@@ -122,6 +122,8 @@ export function printSection(
 
   // Deep clone the target
   const clone = target.cloneNode(true) as HTMLElement
+  // Strip all .no-print elements from the clone so buttons don't appear in printout
+  clone.querySelectorAll(".no-print").forEach((el) => el.remove())
   clone.style.position = "static"
   clone.style.margin = "0 auto"
   clone.style.top = "auto"
