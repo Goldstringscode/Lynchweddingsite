@@ -69,11 +69,6 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`light ${playfair.variable} ${montserrat.variable}`} suppressHydrationWarning>
-          {/* Explicit favicon links — some platforms ignore Next.js metadata output */}
-          <link rel="icon" type="image/svg+xml" href="/icon.svg" />
-          <link rel="icon" type="image/png" sizes="512x512" href="/icon-512.png" />
-          <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png" />
-          <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
           {/* Inline CSS to prevent gray flash — paints bg before external CSS loads */}
       <style
         dangerouslySetInnerHTML={{
