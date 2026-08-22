@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { AnimatePresence, motion } from "motion/react"
 import QRCode from "react-qr-code"
-import { Heart, Printer, Ticket as TicketIcon } from "lucide-react"
+import { Heart, Printer, Ticket as TicketIcon, Download } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
@@ -605,6 +605,15 @@ function Ticket({ data, onReset, onEdit }: { data: RsvpData; onReset: () => void
           >
             <Printer className="size-4" aria-hidden="true" />
             Download / Print Ticket
+          </Button>
+          <Button
+            variant="outline"
+            size="lg"
+            onClick={() => printSection("#details", { title: "Wedding Invitation" })}
+            className="h-12 rounded-none border-primary px-8 font-sans text-sm uppercase tracking-[0.2em] text-primary hover:bg-accent"
+          >
+            <Download className="size-4" aria-hidden="true" />
+            Download Invitation
           </Button>
           <Button
             variant="outline"
