@@ -20,6 +20,30 @@ export const metadata: Metadata = {
   description:
     'Join us as we celebrate the wedding of Nikkita & Justin. View the details, itinerary, and RSVP to our special day.',
   generator: 'v0.app',
+  openGraph: {
+    title: 'Nikkita & Justin — Wedding',
+    description:
+      'Join us as we celebrate the wedding of Nikkita & Justin on September 26, 2026. View details, RSVP, and more.',
+    url: 'https://houseoflynch.app',
+    siteName: 'House of Lynch',
+    images: [
+      {
+        url: '/images/couple-portrait.png',
+        width: 1536,
+        height: 2048,
+        alt: 'Nikkita & Justin',
+      },
+    ],
+    locale: 'en_US',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Nikkita & Justin — Wedding',
+    description:
+      'Join us as we celebrate the wedding of Nikkita & Justin on September 26, 2026.',
+    images: ['/images/couple-portrait.png'],
+  },
   icons: {
     icon: [
       {
