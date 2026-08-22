@@ -45,12 +45,13 @@ export const metadata: Metadata = {
     images: ['/images/couple-portrait.png'],
   },
   icons: {
-      icon: [
-        { url: '/favicon-32.png', type: 'image/png' },
-        { url: '/icon.svg', type: 'image/svg+xml' },
-      ],
-      shortcut: '/favicon-32.png',
-      apple: '/apple-icon.png',
+        icon: [
+          { url: '/favicon.ico', sizes: 'any' },
+          { url: '/favicon-32.png', type: 'image/png', sizes: '32x32' },
+          { url: '/icon.svg', type: 'image/svg+xml' },
+        ],
+        shortcut: '/favicon.ico',
+        apple: '/apple-icon.png',
     },
     other: {
       'msapplication-TileImage': '/favicon-32.png',
