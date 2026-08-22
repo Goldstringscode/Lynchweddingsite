@@ -44,12 +44,12 @@ export const itinerary: TimelineEvent[] = [
   {
     time: "5:00 PM",
     title: "Cocktail Hour",
-    description: "Signature drinks and hors d'oeuvres on the terrace.",
+    description: "Signature drinks and hors d'oeuvres.",
     icon: Martini,
     duration: "5:00 – 5:45 PM",
     location: "Four Seasons at Terra Lago, Indio",
     details:
-      "Enjoy handcrafted signature cocktails, a champagne tower, and passed hors d'oeuvres while a live jazz trio plays on the terrace overlooking the river.",
+          "Enjoy handcrafted signature cocktails, a champagne tower, and an exquisite selection of passed hors d'oeuvres as you mingle and take in the evening.",
   },
   {
     time: "5:45 PM",
@@ -83,12 +83,12 @@ export const itinerary: TimelineEvent[] = [
   },
   {
     time: "7:30 PM",
-    title: "Dancing & Celebration",
-    description: "Let's dance the night away under the stars.",
-    icon: Sparkles,
-    duration: "7:30 PM – Midnight",
-    location: "Four Seasons at Terra Lago, Indio",
-    details:
-      "The party continues with a live band and DJ, a late-night dessert bar, and a sparkler send-off at midnight to close the celebration.",
+        title: "Dancing & Celebration",
+        description: "Let's dance the night away under the stars.",
+        icon: Sparkles,
+        duration: "7:30 – 8:45 PM",
+        location: "Four Seasons at Terra Lago, Indio",
+        details:
+          "The party continues with a live band and DJ, an indulgent late-night dessert bar, and a grand send-off at 8:45 PM to close the celebration.",
   },
 ]
