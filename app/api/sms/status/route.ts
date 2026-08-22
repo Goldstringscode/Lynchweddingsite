@@ -5,39 +5,7 @@ import { authenticateAdmin } from '@/lib/auth'
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
 
-// Twilio signature validation for webhook authenticity
-function validateTwilioSignature(request: Request, formData: URLSearchParams): boolean {
-  try {
-    const twilioSignature = request.headers.get('x-twilio-signature')
-    if (!twilioSignature) return false
-
-    const authToken = process.env.TWILIO_AUTH_TOKEN
-    if (!authToken) return false
-
-    // Build the full URL that Twilio called
-    const url = new URL(request.url)
-    // Sort params alphabetically for signature comparison
-    const params: Record<string, string> = {}
-    formData.forEach((value, key) => { params[key] = value })
-    const sortedParams = Object.keys(params).sort().map(k => `${k}${params[k]}`).join('')
-
-    // HMAC-SHA1 the url + sorted params with auth token
-    const crypto = require('crypto')
-    const data = url.toString() + sortedParams
-    const hmac = crypto.createHmac('sha1', authToken)
-    hmac.update(data)
-    const computed = Buffer.from(hmac.digest('base64'))
-
-    // Constant-time comparison
-    const actual = Buffer.from(twilioSignature)
-    if (computed.length !== actual.length) return false
-    return crypto.timingSafeEqual(computed, actual)
-  } catch {
-    return false
-  }
-}
-
-// POST — Twilio status callback webhook (form-encoded)
+// POST — Twilio status callback webhook (form-encoded, Twilio-signed)
 export async function POST(request: Request) {
   try {
     const form = await request.formData()
@@ -50,10 +18,10 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Missing SID or status' }, { status: 400 })
     }
 
-    // Validate Twilio signature
-    const params = new URLSearchParams()
-    form.forEach((value, key) => params.append(key, value.toString()))
-    if (!validateTwilioSignature(request, params)) {
+    // Validate Twilio signature using the official SDK
+    const twilio = require('twilio')
+    const authToken = process.env.TWILIO_AUTH_TOKEN
+    if (authToken && !twilio.validateRequest(authToken, request.headers.get('x-twilio-signature') || '', request.url, Object.fromEntries(form))) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
@@ -68,23 +36,20 @@ export async function POST(request: Request) {
     if (existing) {
       const currentIdx = orderedStatuses.indexOf(existing.status)
       const newIdx = orderedStatuses.indexOf(status)
-      // Only update if new status is further along (or final state)
       if (newIdx <= currentIdx && status !== 'failed' && status !== 'undelivered') {
         return NextResponse.json({ ok: true, skipped: true })
       }
     }
 
-    if (sid) {
-      await supabaseAdmin
-        .from('sms_messages')
-        .update({
-          status,
-          error_code: errorCode || null,
-          error_message: errorMsg || null,
-          updated_at: new Date().toISOString(),
-        })
-        .eq('twilio_sid', sid)
-    }
+    await supabaseAdmin
+      .from('sms_messages')
+      .update({
+        status,
+        error_code: errorCode || null,
+        error_message: errorMsg || null,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('twilio_sid', sid)
 
     return NextResponse.json({ ok: true })
   } catch {
