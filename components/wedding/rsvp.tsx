@@ -20,6 +20,7 @@ type MealChoice = "Beef" | "Chicken" | "Fish" | "Pork" | "Vegan"
 const MEAL_OPTIONS: MealChoice[] = ["Beef", "Chicken", "Fish", "Pork", "Vegan"]
 
 type RsvpData = {
+  id: string
   name: string
   email: string
   phone: string
@@ -49,47 +50,92 @@ export function Rsvp() {
   const [attendance, setAttendance] = useState<Attendance>("accept")
   const [submitted, setSubmitted] = useState<RsvpData | null>(null)
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault()
-    const accessCode = makeAccessCode(name)
-    try {
-      const res = await fetch("/api/rsvp", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, phone, guest_count: parseInt(guests), meal_choice: meal, guest_meal: guests === "2" ? guestMeal : null, dietary, is_attending: attendance === "accept" }),
-      })
-      if (res.ok) {
-        const data = await res.json()
-        setSubmitted({ name, email, phone, guests, meal, guestMeal: guests === "2" ? guestMeal : null, dietary, attendance, code: data.access_code || accessCode })
-      } else if (res.status === 409) {
-        const err = await res.json()
-        alert(err.error || "A guest with this email has already RSVP'd.")
-      } else {
-        alert("Something went wrong submitting your RSVP. Please try again or contact the wedding planner.")
-      }
-    } catch (err) {
-      // DO NOT call setSubmitted here — that silently pretends the RSVP succeeded.
-      // The guest would see a fake ticket with a QR code but nothing was saved.
-      alert("Unable to reach our server. Please check your connection and try again, or contact us directly.")
-    }
-    setTimeout(() => {
-      document
-        .getElementById("rsvp-result")
-        ?.scrollIntoView({ behavior: "smooth", block: "start" })
-    }, 100)
-  }
+  const [editId, setEditId] = useState<string | null>(null)
 
-  function reset() {
-    setSubmitted(null)
-    setName("")
-    setEmail("")
-    setPhone("")
-    setGuests("1")
-    setMeal("Beef")
-    setGuestMeal("Beef")
-    setDietary("")
-    setAttendance("accept")
-  }
+    async function handleSubmit(e: React.FormEvent) {
+      e.preventDefault()
+
+      // Editing existing RSVP → PATCH
+      if (editId) {
+        try {
+          const res = await fetch(`/api/rsvp/${editId}`, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              access_code: submitted?.code,
+              name, email, phone,
+              guest_count: parseInt(guests),
+              meal_choice: meal,
+              guest_meal: guests === "2" ? guestMeal : null,
+              dietary,
+              is_attending: attendance === "accept",
+            }),
+          })
+          if (res.ok) {
+            const data = await res.json()
+            setSubmitted({ id: editId, name, email, phone, guests, meal, guestMeal: guests === "2" ? guestMeal : null, dietary, attendance, code: data.access_code || submitted?.code || "" })
+            setEditId(null)
+          } else {
+            alert("Could not update your RSVP. Please try again.")
+          }
+        } catch {
+          alert("Unable to reach our server. Please try again.")
+        }
+        return
+      }
+
+      // New RSVP → POST
+      try {
+        const res = await fetch("/api/rsvp", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name, email, phone, guest_count: parseInt(guests), meal_choice: meal, guest_meal: guests === "2" ? guestMeal : null, dietary, is_attending: attendance === "accept" }),
+        })
+        if (res.ok) {
+          const data = await res.json()
+          setSubmitted({ id: data.id, name, email, phone, guests, meal, guestMeal: guests === "2" ? guestMeal : null, dietary, attendance, code: data.access_code || "" })
+        } else if (res.status === 409) {
+          const err = await res.json()
+          alert(err.error || "A guest with this email has already RSVP'd.")
+        } else {
+          alert("Something went wrong submitting your RSVP. Please try again or contact the wedding planner.")
+        }
+      } catch {
+        alert("Unable to reach our server. Please check your connection and try again, or contact us directly.")
+      }
+
+      setTimeout(() => {
+        document
+          .getElementById("rsvp-result")
+          ?.scrollIntoView({ behavior: "smooth", block: "start" })
+      }, 100)
+    }
+
+    function startEdit(data: RsvpData) {
+      setEditId(data.id)
+      setName(data.name)
+      setEmail(data.email)
+      setPhone(data.phone)
+      setGuests(data.guests)
+      setMeal(data.meal)
+      setGuestMeal(data.guestMeal || "Beef")
+      setDietary(data.dietary)
+      setAttendance(data.attendance)
+      setSubmitted(null)
+    }
+
+    function reset() {
+      setEditId(null)
+      setSubmitted(null)
+      setName("")
+      setEmail("")
+      setPhone("")
+      setGuests("1")
+      setMeal("Beef")
+      setGuestMeal("Beef")
+      setDietary("")
+      setAttendance("accept")
+    }
 
   return (
     <section id="rsvp" className="bg-secondary px-6 py-24 md:py-32">
@@ -290,7 +336,7 @@ export function Rsvp() {
               className="mt-12"
             >
               {submitted.attendance === "accept" ? (
-                <Ticket data={submitted} onReset={reset} />
+                <Ticket data={submitted} onReset={reset} onEdit={startEdit} />
               ) : (
                 <div className="border border-border bg-card p-10 text-center shadow-sm">
                   <Heart className="mx-auto size-8 text-gold" aria-hidden="true" />
@@ -303,7 +349,7 @@ export function Rsvp() {
                   </p>
                   <Button
                     variant="outline"
-                    onClick={reset}
+                    onClick={() => startEdit(submitted)}
                     className="mt-6 rounded-none border-primary text-primary hover:bg-accent"
                   >
                     Edit Response
@@ -423,7 +469,7 @@ function shareToMobile(data: RsvpData) {
   }
 }
 
-function Ticket({ data, onReset }: { data: RsvpData; onReset: () => void }) {
+function Ticket({ data, onReset, onEdit }: { data: RsvpData; onReset: () => void; onEdit: (data: RsvpData) => void }) {
   const guestCount = Number(data.guests)
   const extra = guestCount - 1
 
@@ -563,7 +609,7 @@ function Ticket({ data, onReset }: { data: RsvpData; onReset: () => void }) {
           <Button
             variant="outline"
             size="lg"
-            onClick={onReset}
+            onClick={() => onEdit(data)}
             className="h-12 rounded-none border-primary px-8 font-sans text-sm uppercase tracking-[0.2em] text-primary hover:bg-accent"
           >
             Edit Response
