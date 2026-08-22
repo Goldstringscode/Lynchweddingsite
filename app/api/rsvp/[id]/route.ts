@@ -12,7 +12,7 @@ export async function DELETE(request: Request, { params }: { params: { id: strin
     .delete()
     .eq('id', params.id)
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  if (error) { console.error('Admin route error:', error.message); return NextResponse.json({ error: 'Operation failed' }, { status: 500 }) }
   return NextResponse.json({ success: true })
 }
 
@@ -32,7 +32,7 @@ export async function PATCH(request: Request, { params }: { params: { id: string
       .eq('id', params.id)
       .select('*')
       .single()
-    if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+    if (error) { console.error('Admin route error:', error.message); return NextResponse.json({ error: 'Operation failed' }, { status: 500 }) }
     return NextResponse.json(data)
   }
 
@@ -47,6 +47,7 @@ export async function PATCH(request: Request, { params }: { params: { id: string
     .maybeSingle()
 
   if (lookupError || !guest) {
+    if (lookupError) console.error('PATCH lookup error:', lookupError.message)
     return NextResponse.json({ error: 'Guest not found or access code invalid' }, { status: 404 })
   }
 
@@ -70,6 +71,6 @@ export async function PATCH(request: Request, { params }: { params: { id: string
     .select('*')
     .single()
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  if (error) { console.error('Admin route error:', error.message); return NextResponse.json({ error: 'Operation failed' }, { status: 500 }) }
   return NextResponse.json(data)
 }
