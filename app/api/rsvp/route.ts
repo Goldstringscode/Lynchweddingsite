@@ -2,28 +2,6 @@ import { NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase-admin'
 import { authenticateAdmin } from '@/lib/auth'
 
-// ── Rate limiting for public RSVP ──────────────────────────────────
-const rateMap = new Map<string, { count: number; resetAt: number }>()
-const MAX_RSVP_PER_IP = 3
-const RSVP_WINDOW_MS = 60 * 60 * 1000 // 1 hour
-
-function rateLimit(ip: string): boolean {
-  const now = Date.now()
-  const entry = rateMap.get(ip)
-  if (!entry || entry.resetAt <= now) {
-    rateMap.set(ip, { count: 1, resetAt: now + RSVP_WINDOW_MS })
-    return false
-  }
-  entry.count += 1
-  if (entry.count > MAX_RSVP_PER_IP) return true
-  return false
-}
-
-function getIP(request: Request): string {
-  return request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
-         request.headers.get('x-real-ip') ||
-         'unknown'
-}
 
 // ── Input validation ───────────────────────────────────────────────
 function validate(fields: Record<string, unknown>): string | null {
@@ -78,11 +56,6 @@ export async function POST(request: Request) {
     body = await request.json()
   } catch {
     return NextResponse.json({ error: 'Invalid request' }, { status: 400 })
-  }
-
-  // Rate limit
-  if (rateLimit(getIP(request))) {
-    return NextResponse.json({ error: 'Too many RSVPs from this device. Please try again later.' }, { status: 429 })
   }
 
   // Validate
