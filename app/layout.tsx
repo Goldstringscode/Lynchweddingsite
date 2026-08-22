@@ -19,7 +19,6 @@ export const metadata: Metadata = {
   title: 'Nikkita & Justin — Wedding',
   description:
     'Join us as we celebrate the wedding of Nikkita & Justin. View the details, itinerary, and RSVP to our special day.',
-  generator: 'v0.app',
   openGraph: {
     title: 'Nikkita & Justin — Wedding',
     description:
@@ -45,17 +44,17 @@ export const metadata: Metadata = {
     images: ['/images/couple-portrait.png'],
   },
   icons: {
-        icon: [
-          { url: '/favicon.ico', sizes: 'any' },
-          { url: '/favicon-32.png', type: 'image/png', sizes: '32x32' },
-          { url: '/icon.svg', type: 'image/svg+xml' },
-        ],
-        shortcut: '/favicon.ico',
-        apple: '/apple-icon.png',
-    },
+    icon: [
+      { url: '/favicon.ico', sizes: '48x48' },
+      { url: '/icon.svg', type: 'image/svg+xml' },
+    ],
+    shortcut: '/favicon.ico',
+    apple: '/apple-touch-icon.png',
     other: {
-      'msapplication-TileImage': '/favicon-32.png',
+      'apple-mobile-web-app-capable': 'yes',
+      'msapplication-TileImage': '/icon-512.png',
     },
+  },
 }
 
 export const viewport: Viewport = {
@@ -70,7 +69,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`light ${playfair.variable} ${montserrat.variable}`} suppressHydrationWarning>
-      {/* Inline CSS to prevent gray flash — paints bg before external CSS loads */}
+          {/* Explicit favicon links — some platforms ignore Next.js metadata output */}
+          <link rel="icon" type="image/svg+xml" href="/icon.svg" />
+          <link rel="icon" type="image/png" sizes="512x512" href="/icon-512.png" />
+          <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png" />
+          <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+          {/* Inline CSS to prevent gray flash — paints bg before external CSS loads */}
       <style
         dangerouslySetInnerHTML={{
           __html: [
