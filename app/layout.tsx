@@ -16,6 +16,7 @@ const montserrat = Montserrat({
 })
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://houseoflynch.app'),
   title: 'Nikkita & Justin — Wedding',
   description:
     'Join us as we celebrate the wedding of Nikkita & Justin. View the details, itinerary, and RSVP to our special day.',
@@ -27,21 +28,22 @@ export const metadata: Metadata = {
     siteName: 'House of Lynch',
     images: [
           {
-            url: 'https://houseoflynch.app/images/preview-2026.png',
-            width: 1200,
-            height: 630,
-            alt: 'Nikkita & Justin',
-          },
-        ],
-    locale: 'en_US',
-    type: 'website',
-  },
-  twitter: {
-    card: 'summary_large_image',
-    title: 'Nikkita & Justin — Wedding',
-    description:
-      'Join us as we celebrate the wedding of Nikkita & Justin on September 26, 2026.',
-    images: ['https://houseoflynch.app/images/preview-2026.png'],
+            url: '/images/og.jpg',
+                        width: 1200,
+                        height: 630,
+                        alt: 'Nikkita & Justin',
+                        type: 'image/jpeg',
+                      },
+                    ],
+                locale: 'en_US',
+                type: 'website',
+              },
+              twitter: {
+                card: 'summary_large_image',
+                title: 'Nikkita & Justin — Wedding',
+                description:
+                  'Join us as we celebrate the wedding of Nikkita & Justin on September 26, 2026.',
+                images: ['/images/og.jpg'],
   },
   icons: {
         icon: [
