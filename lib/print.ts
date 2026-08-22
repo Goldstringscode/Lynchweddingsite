@@ -124,8 +124,14 @@ export function printSection(selector: string, options: PrintSectionOptions = {}
     setTimeout(() => {
       if (iframe.parentNode) document.body.removeChild(iframe)
     }, 500)
+    // Detach both listeners
+    iframe.contentWindow?.removeEventListener('afterprint', cleanup)
     window.removeEventListener('afterprint', cleanup)
   }
+
+  // Primary: listen on the iframe's own window (Chrome/Firefox)
+  iframe.contentWindow?.addEventListener('afterprint', cleanup)
+  // Fallback: some browsers fire afterprint on the parent window
   window.addEventListener('afterprint', cleanup)
 
   // Fallback cleanup for mobile Safari (doesn't always fire afterprint)
