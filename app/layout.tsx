@@ -45,22 +45,16 @@ export const metadata: Metadata = {
     images: ['/images/couple-portrait.png'],
   },
   icons: {
-    icon: [
-      {
-        url: '/icon-light-32x32.png',
-        media: '(prefers-color-scheme: light)',
-      },
-      {
-        url: '/icon-dark-32x32.png',
-        media: '(prefers-color-scheme: dark)',
-      },
-      {
-        url: '/icon.svg',
-        type: 'image/svg+xml',
-      },
-    ],
-    apple: '/apple-icon.png',
-  },
+      icon: [
+        { url: '/favicon-32.png', type: 'image/png' },
+        { url: '/icon.svg', type: 'image/svg+xml' },
+      ],
+      shortcut: '/favicon-32.png',
+      apple: '/apple-icon.png',
+    },
+    other: {
+      'msapplication-TileImage': '/favicon-32.png',
+    },
 }
 
 export const viewport: Viewport = {
