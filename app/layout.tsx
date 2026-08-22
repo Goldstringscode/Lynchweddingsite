@@ -26,13 +26,13 @@ export const metadata: Metadata = {
     url: 'https://houseoflynch.app',
     siteName: 'House of Lynch',
     images: [
-      {
-        url: '/images/couple-portrait.png',
-        width: 1536,
-        height: 2048,
-        alt: 'Nikkita & Justin',
-      },
-    ],
+          {
+            url: '/images/og-image.jpg',
+            width: 1200,
+            height: 630,
+            alt: 'Nikkita & Justin',
+          },
+        ],
     locale: 'en_US',
     type: 'website',
   },
@@ -41,7 +41,7 @@ export const metadata: Metadata = {
     title: 'Nikkita & Justin — Wedding',
     description:
       'Join us as we celebrate the wedding of Nikkita & Justin on September 26, 2026.',
-    images: ['/images/couple-portrait.png'],
+    images: ['/images/og-image.jpg'],
   },
   icons: {
         icon: [
