@@ -17,13 +17,13 @@ export async function DELETE(request: Request, { params }: { params: { id: strin
 }
 
 // Public: edit own RSVP with access_code verification
-// Admin: edit any guest (check-in toggle, etc.)
+// Admin: edit check_in field
 export async function PATCH(request: Request, { params }: { params: { id: string } }) {
   const body = await request.json()
 
-  // If check_in is the ONLY field being updated (admin check-in toggle)
-  // we allow it with admin auth
-  if (Object.keys(body).length === 1 && 'check_in' in body) {
+  // Gate by WHICH field is present, not by key count.
+  // check_in is admin-only regardless of what else is in the body.
+  if ('check_in' in body) {
     const authError = await authenticateAdmin()
     if (authError) return authError
     const { data, error } = await supabaseAdmin
@@ -36,7 +36,7 @@ export async function PATCH(request: Request, { params }: { params: { id: string
     return NextResponse.json(data)
   }
 
-  // Public RSVP edit — requires access_code
+  // Public RSVP edit — requires access_code match
   const { access_code } = body
 
   const { data: guest, error: lookupError } = await supabaseAdmin
@@ -50,6 +50,7 @@ export async function PATCH(request: Request, { params }: { params: { id: string
     return NextResponse.json({ error: 'Guest not found or access code invalid' }, { status: 404 })
   }
 
+  // Whitelist: only these fields can be updated by the guest
   const allowed = ['name', 'email', 'phone', 'guest_count', 'meal_choice', 'guest_meal', 'dietary', 'is_attending']
   const updates: Record<string, unknown> = {}
   for (const key of allowed) {
