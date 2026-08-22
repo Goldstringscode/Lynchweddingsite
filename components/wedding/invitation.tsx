@@ -114,7 +114,7 @@ export function Invitation() {
             {/* Download button — hidden when printing */}
               <div className="no-print mt-12 flex justify-center">
                 <button
-                  onClick={() => printSection("print-invitation")}
+                  onClick={() => printSection("#details", { title: "Wedding Invitation" })}
                   className="inline-flex h-12 items-center gap-2 rounded-none bg-primary px-8 font-sans text-sm uppercase tracking-[0.2em] text-primary-foreground transition-colors hover:bg-primary/90"
                 >
                   <Download className="size-4 shrink-0" aria-hidden="true" />

@@ -599,7 +599,7 @@ function Ticket({ data, onReset, onEdit }: { data: RsvpData; onReset: () => void
         </p>
         <div className="flex flex-wrap justify-center gap-3">
           <Button
-            onClick={() => printSection("print-ticket")}
+            onClick={() => printSection("#printable-ticket", { title: "Wedding Ticket" })}
             size="lg"
             className="h-12 rounded-none bg-primary px-8 font-sans text-sm uppercase tracking-[0.2em] text-primary-foreground hover:bg-primary/90"
           >

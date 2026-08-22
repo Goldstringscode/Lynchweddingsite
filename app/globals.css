@@ -172,56 +172,10 @@
   }
 }
 
-/* ==========================================================================
-   PRINT — Ticket & Invitation isolation
-   ========================================================================== */
+/* Print reset — the real print isolation lives in lib/print.ts (new-window approach).
+   This ensures background colors are preserved when the user does a browser File→Print. */
 @media print {
-  @page {
-    margin: 12mm;
-  }
-
-  /* Hide nav, buttons, and any no-print elements */
-  .no-print,
-  header,
-  .no-print * {
-    display: none !important;
-  }
-
-  /* --- Print TICKET mode --- */
-  body.print-ticket * {
-    visibility: hidden !important;
-  }
-  body.print-ticket #printable-ticket,
-  body.print-ticket #printable-ticket * {
-    visibility: visible !important;
-  }
-  body.print-ticket #printable-ticket {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    margin: 0;
-  }
-
-  /* --- Print INVITATION mode --- */
-  body.print-invitation * {
-    visibility: hidden !important;
-  }
-  body.print-invitation #details,
-  body.print-invitation #details * {
-    visibility: visible !important;
-  }
-  body.print-invitation #details {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    margin: 0;
-  }
-
-  /* Preserve backgrounds (green header band, gold accents, QR code) */
-  #printable-ticket,
-  #details {
+  * {
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
   }
