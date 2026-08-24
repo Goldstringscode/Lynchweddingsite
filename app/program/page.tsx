@@ -39,11 +39,11 @@ export default function ProgramPage() {
           </p>
 
           <Image
-            src="/images/botanical-crest.png"
+            src="/images/monogram.png"
             alt=""
-            width={160}
-            height={160}
-            className="mt-6 h-28 w-auto opacity-90 mix-blend-multiply"
+            width={193}
+            height={200}
+            className="mt-6 h-40 w-auto"
             aria-hidden="true"
           />
 
