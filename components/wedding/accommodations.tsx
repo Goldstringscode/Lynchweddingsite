@@ -4,7 +4,7 @@ import { useState, useCallback } from "react"
 import { Hotel, Home, Phone, Wifi, Car, Dumbbell, Briefcase, Waves, Coffee, X } from "lucide-react"
 import { Divider, Reveal } from "./decor"
 
-const HOTEL_URL = "https://www.hilton.com/en/hampton/" // ← update when room block link is ready
+const HOTEL_URL = "https://www.hilton.com/en/attend-my-event/laxidhx-elw-b878dfd3-578a-4033-a2a7-73adeead5434/" // Hampton Inn room block for Nikkita & Justin's Wedding
 const AIRBNB_URL = "https://www.airbnb.com/wishlists/viewonly/fd7e382a-8210-4183-a2ce-dc8156199242?s=67&unique_share_id=6d7da461-8150-424c-a46c-74d49a04456c"
 
 const AMENITIES = [
@@ -115,7 +115,7 @@ export function Accommodations() {
                       760-227-1900
                     </a>
                     <p className="mt-1 font-sans text-[0.6rem] text-muted-foreground">
-                      Mention &ldquo;Rodgers/Lynch Wedding Block&rdquo;
+                      Mention &ldquo;Nikkita and Justin&rsquo;s Wedding Block&rdquo;
                     </p>
                   </div>
 
@@ -134,10 +134,15 @@ export function Accommodations() {
                     </div>
                   </div>
 
-                  {/* Online booking coming soon */}
-                  <p className="mt-4 text-center font-sans text-[0.6rem] italic text-muted-foreground/70">
-                    Online booking link coming soon
-                  </p>
+                  {/* Online booking link */}
+                  <a
+                    href={HOTEL_URL}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mt-4 inline-flex items-center gap-1.5 font-sans text-xs uppercase tracking-[0.15em] text-primary transition-colors hover:text-primary/80"
+                  >
+                    Book Online &rarr;
+                  </a>
 
                   {/* Deadline reminder */}
                   <p className="mt-3 text-center font-sans text-[0.6rem] font-medium uppercase tracking-[0.15em] text-gold">
