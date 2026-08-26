@@ -52,6 +52,56 @@ export function Rsvp() {
 
   const [editId, setEditId] = useState<string | null>(null)
 
+  // Ticket recovery ("Need to download your ticket?") for guests who
+  // already RSVP'd and lost their ticket. Matches name + email.
+  const [recoverOpen, setRecoverOpen] = useState(false)
+  const [recoverName, setRecoverName] = useState("")
+  const [recoverEmail, setRecoverEmail] = useState("")
+  const [recoverError, setRecoverError] = useState<string | null>(null)
+  const [recoverLoading, setRecoverLoading] = useState(false)
+
+  async function handleRecover(e: React.FormEvent) {
+    e.preventDefault()
+    setRecoverError(null)
+    setRecoverLoading(true)
+    try {
+      const res = await fetch("/api/rsvp/lookup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: recoverName, email: recoverEmail }),
+      })
+      if (res.ok) {
+        const g = await res.json()
+        // Reuse the exact Ticket view + working Download button.
+        setSubmitted({
+          id: g.id,
+          name: g.name,
+          email: g.email,
+          phone: g.phone || "",
+          guests: String(g.guest_count || 1),
+          meal: (g.meal_choice as MealChoice) || "Beef",
+          guestMeal: (g.guest_meal as MealChoice) || null,
+          dietary: g.dietary || "",
+          attendance: g.is_attending ? "accept" : "decline",
+          code: g.access_code || "",
+        })
+        setRecoverOpen(false)
+        setRecoverName("")
+        setRecoverEmail("")
+        setTimeout(() => {
+          document.getElementById("rsvp-result")?.scrollIntoView({ behavior: "smooth", block: "start" })
+        }, 100)
+      } else {
+        const err = await res.json().catch(() => ({}))
+        setRecoverError(err.error || "We couldn't find your RSVP. Please try again.")
+      }
+    } catch {
+      setRecoverError("Unable to reach our server. Please check your connection and try again.")
+    } finally {
+      setRecoverLoading(false)
+    }
+  }
+
     async function handleSubmit(e: React.FormEvent) {
       e.preventDefault()
 
@@ -325,6 +375,77 @@ export function Rsvp() {
               >
                 Submit RSVP
               </Button>
+
+              {/* Ticket recovery — already RSVP'd? re-download your ticket */}
+              <div className="border-t border-border pt-6 text-center">
+                {!recoverOpen ? (
+                  <button
+                    type="button"
+                    onClick={() => { setRecoverOpen(true); setRecoverError(null) }}
+                    className="font-sans text-xs uppercase tracking-[0.2em] text-primary underline underline-offset-4 transition-opacity hover:opacity-70"
+                  >
+                    Need to download your ticket?
+                  </button>
+                ) : (
+                  <div className="space-y-4 text-left">
+                    <div className="text-center">
+                      <p className="font-serif text-lg text-foreground">Retrieve Your Ticket</p>
+                      <p className="mt-1 font-sans text-xs leading-relaxed text-muted-foreground">
+                        Already RSVP&apos;d? Enter the name and email you used and
+                        we&apos;ll bring your ticket back up to download.
+                      </p>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="recover-name" className="uppercase tracking-wider text-xs">
+                        Full Name
+                      </Label>
+                      <Input
+                        id="recover-name"
+                        value={recoverName}
+                        onChange={(e) => setRecoverName(e.target.value)}
+                        placeholder="First and Last Name"
+                        className="rounded-none border-input focus-visible:ring-primary"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="recover-email" className="uppercase tracking-wider text-xs">
+                        Email
+                      </Label>
+                      <Input
+                        id="recover-email"
+                        type="email"
+                        value={recoverEmail}
+                        onChange={(e) => setRecoverEmail(e.target.value)}
+                        placeholder="you@example.com"
+                        className="rounded-none border-input focus-visible:ring-primary"
+                      />
+                    </div>
+                    {recoverError ? (
+                      <p className="font-sans text-xs leading-relaxed text-destructive" role="alert">
+                        {recoverError}
+                      </p>
+                    ) : null}
+                    <div className="flex flex-wrap gap-3">
+                      <Button
+                        type="button"
+                        onClick={handleRecover}
+                        disabled={recoverLoading || !recoverName.trim() || !recoverEmail.trim()}
+                        className="h-11 rounded-none bg-primary px-6 font-sans text-xs uppercase tracking-[0.2em] text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
+                      >
+                        {recoverLoading ? "Looking\u2026" : "Retrieve Ticket"}
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => { setRecoverOpen(false); setRecoverError(null) }}
+                        className="h-11 rounded-none border-primary px-6 font-sans text-xs uppercase tracking-[0.2em] text-primary hover:bg-accent"
+                      >
+                        Cancel
+                      </Button>
+                    </div>
+                  </div>
+                )}
+              </div>
             </motion.form>
           ) : (
             <motion.div
