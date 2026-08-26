@@ -55,6 +55,17 @@ export function Nav() {
     }
   }, [])
 
+  // "Download Ticket" — scroll to RSVP and open the ticket-recovery panel there.
+  const openTicketRecovery = useCallback(() => {
+    setOpen(false)
+    const el = document.getElementById("rsvp")
+    if (el) el.scrollIntoView({ behavior: "smooth", block: "start" })
+    // Let the RSVP section open its recovery panel (components are decoupled).
+    setTimeout(() => {
+      window.dispatchEvent(new CustomEvent("open-ticket-recovery"))
+    }, 400)
+  }, [])
+
   const linkClass = (id: string) =>
     `relative font-sans text-[0.65rem] uppercase tracking-[0.25em] transition-colors duration-300 ${
       active === id
@@ -99,6 +110,18 @@ export function Nav() {
                 </button>
               </li>
             ))}
+            <li>
+              <button
+                onClick={openTicketRecovery}
+                className={`border px-4 py-2 font-sans text-[0.6rem] uppercase tracking-[0.25em] transition-colors duration-300 ${
+                  scrolled
+                    ? "border-primary text-primary hover:bg-primary hover:text-primary-foreground"
+                    : "border-white/70 text-white hover:bg-white hover:text-primary"
+                }`}
+              >
+                Download Ticket
+              </button>
+            </li>
           </ul>
 
           {/* Mobile hamburger */}
@@ -159,6 +182,17 @@ export function Nav() {
                   )}
                 </motion.button>
               ))}
+
+              <motion.button
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 12 }}
+                transition={{ duration: 0.4, delay: NAV_ITEMS.length * 0.06, ease: [0.22, 1, 0.36, 1] }}
+                onClick={openTicketRecovery}
+                className="mt-2 border border-primary px-6 py-3 font-sans text-xs uppercase tracking-[0.25em] text-primary transition-colors hover:bg-primary hover:text-primary-foreground"
+              >
+                Download Ticket
+              </motion.button>
             </nav>
 
             {/* Footer ornament */}

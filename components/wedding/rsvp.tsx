@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { AnimatePresence, motion } from "motion/react"
 import QRCode from "react-qr-code"
 import { Heart, Ticket as TicketIcon, Download } from "lucide-react"
@@ -101,6 +101,22 @@ export function Rsvp() {
       setRecoverLoading(false)
     }
   }
+
+  // Nav "Download Ticket" → open the recovery panel (show the form if a ticket
+  // is currently displayed, so the panel is visible).
+  useEffect(() => {
+    function onOpenRecovery() {
+      setSubmitted(null)
+      setEditId(null)
+      setRecoverError(null)
+      setRecoverOpen(true)
+      setTimeout(() => {
+        document.getElementById("recover-name")?.focus()
+      }, 150)
+    }
+    window.addEventListener("open-ticket-recovery", onOpenRecovery)
+    return () => window.removeEventListener("open-ticket-recovery", onOpenRecovery)
+  }, [])
 
     async function handleSubmit(e: React.FormEvent) {
       e.preventDefault()
