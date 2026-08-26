@@ -139,3 +139,61 @@ export function printSection(selector: string, options: PrintSectionOptions = {}
 }
 
 export default printSection
+
+/**
+ * downloadTicket — save a section as a real PNG file (works on mobile, unlike
+ * the print dialog). Uses html-to-image (already a dependency, proven in
+ * caterer-sheet.tsx / preview-export-tab.tsx). On desktop, optionally also
+ * opens the print dialog as a convenience.
+ *
+ * Fixes the guest-reported "can't download my ticket" bug: the old button
+ * called iframe.contentWindow.print(), which silently does nothing on mobile
+ * Safari and never produces a downloadable file.
+ */
+export async function downloadTicket(
+  selector: string,
+  options: { filename?: string; alsoPrintOnDesktop?: boolean; title?: string } = {},
+): Promise<void> {
+  const { filename = 'wedding-ticket.png', alsoPrintOnDesktop = false, title } = options
+  const target = document.querySelector<HTMLElement>(selector)
+  if (!target) {
+    console.error('downloadTicket: no element found for "' + selector + '"')
+    alert('Sorry — the ticket could not be generated. Please screenshot this page instead.')
+    return
+  }
+
+  try {
+    const { toPng } = await import('html-to-image')
+    // Wait for fonts + the QR SVG to be fully painted before capturing.
+    if (document.fonts?.ready) {
+      await document.fonts.ready.catch(() => undefined)
+    }
+    const dataUrl = await toPng(target, {
+      quality: 1,
+      pixelRatio: 2,               // crisp on retina / when zoomed
+      backgroundColor: '#ffffff',  // avoid transparent PNG on some viewers
+      cacheBust: true,
+    })
+    const link = document.createElement('a')
+    link.download = filename
+    link.href = dataUrl
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+  } catch (err) {
+    console.error('downloadTicket failed:', err)
+    alert('Sorry — the ticket could not be downloaded. Please take a screenshot of this page to save your ticket.')
+    return
+  }
+
+  // Desktop convenience: also offer the print dialog (never on touch devices,
+  // where it silently fails and confuses guests).
+  if (alsoPrintOnDesktop) {
+    const isTouch = typeof window !== 'undefined' &&
+      (('ontouchstart' in window) || navigator.maxTouchPoints > 0 ||
+       window.matchMedia('(pointer: coarse)').matches)
+    if (!isTouch) {
+      printSection(selector, { title })
+    }
+  }
+}
